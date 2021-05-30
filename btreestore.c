@@ -57,7 +57,22 @@ void encrypt_tea(uint32_t plain[2], uint32_t cipher[2], uint32_t key[4]) {
 }
 
 void decrypt_tea(uint32_t cipher[2], uint32_t plain[2], uint32_t key[4]) {
-    // Your code here
+    uint32_t sum = 0xDDE6E400;
+    uint32_t delta = 0x9E3779B9;
+    for (int i = 0; i < 1024; i++) {
+        uint32_t tmp4 = ((cipher[0] << 4) + key[2]);
+        uint32_t tmp5 = (cipher[0] + sum);
+        uint32_t tmp6 = ((cipher[0] >> 5) + key[3]);
+        cipher[1] = (cipher[1] - (tmp4 ^ tmp5 ^ tmp6));
+        uint32_t tmp1 = ((cipher[1] << 4) + key[0]);
+        uint32_t tmp2 = (cipher[1] + sum);
+        uint32_t tmp3 = ((cipher[1] >> 5) + key[1]);
+        cipher[0] = (cipher[0] - (tmp1 ^ tmp2 ^ tmp3));
+        sum = (sum - delta);
+        plain[0] = cipher[0];
+        plain[1] = cipher[1];
+        // plain now contains the 64 bit plaintext
+    }
     return;
 }
 
