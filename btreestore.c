@@ -90,7 +90,7 @@ void decrypt_tea_ctr(uint64_t * cipher, uint32_t key[4], uint64_t nonce, uint64_
     for (int i = 0; i < num_blocks; i++) {
         uint64_t tmp1 = i ^ nonce;
         uint64_t tmp2;
-        decrypt_tea((uint32_t *) &tmp2, (uint32_t *) &tmp1, key);
+        encrypt_tea((uint32_t *) &tmp1, (uint32_t *) &tmp2, key);
         plain[i] = cipher[i] ^ tmp2;
     }
     return;
