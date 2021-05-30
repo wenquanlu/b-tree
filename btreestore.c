@@ -87,6 +87,11 @@ void encrypt_tea_ctr(uint64_t * plain, uint32_t key[4], uint64_t nonce, uint64_t
 }
 
 void decrypt_tea_ctr(uint64_t * cipher, uint32_t key[4], uint64_t nonce, uint64_t * plain, uint32_t num_blocks) {
-    // Your code here
+    for (int i = 0; i < num_blocks; i++) {
+        uint64_t tmp1 = i ^ nonce;
+        uint64_t tmp2;
+        decrypt_tea((uint32_t *) &tmp1, (uint32_t *) &tmp2, key);
+        plain[i] = cipher[i] ^ tmp2;
+    }
     return;
 }
