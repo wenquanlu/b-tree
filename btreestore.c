@@ -10,6 +10,8 @@ void * init_store(uint16_t branching, uint8_t n_processors) {
 
 void close_store(void * helper) {
     // Your code here
+
+    free(helper);
     return;
 }
 
