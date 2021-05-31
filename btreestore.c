@@ -2,7 +2,10 @@
 
 void * init_store(uint16_t branching, uint8_t n_processors) {
     // Your code here
-    return NULL;
+    uint16_t * info = malloc(2 * sizeof(uint16_t));
+    *info = branching;
+    *(info + 1) = n_processors;
+    return (void *) info;
 }
 
 void close_store(void * helper) {
