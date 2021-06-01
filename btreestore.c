@@ -249,9 +249,38 @@ int btree_delete(uint32_t key, void * helper) {
     return -1;
 }
 
+int pre_order(struct tree_node * root, int count, struct node * ls) {
+    if (root -> children == NULL) {
+        ls = realloc(ls, (count + 1) * sizeof(struct node));
+        struct node * new_node = ls + count;
+        int num_keys = root -> num_keys;
+        new_node -> num_keys = num_keys;
+        new_node -> keys = malloc(num_keys * sizeof(uint32_t));
+        for (int i = 0; i < num_keys; i++) {
+            *((new_node -> keys) + i) = (root -> pairs + i) -> key;
+        }
+        return count + 1;
+    }
+    int root_num_keys = root -> num_keys;
+    count ++;
+    ls = realloc(ls, (count) * sizeof(struct node));
+    struct node * new_node = ls + count - 1;
+    new_node -> num_keys = root_num_keys;
+    new_node -> keys = malloc(root_num_keys * sizeof(uint32_t));
+    for (int i = 0; i < root_num_keys; i++) {
+        *((new_node -> keys) + i) = (root -> pairs + i) -> key;
+    }
+    for (int i = 0; i < root_num_keys + 1; i++) {
+        count += pre_order((root -> children) + i, count, ls);
+    }
+    return count;
+}
+
 uint64_t btree_export(void * helper, struct node ** list) {
-    
-    return 0;
+    int count = 0;
+    struct tree_node * root = helper;
+    *list = NULL;
+    return pre_order(root, count, *list);
 }
 
 void encrypt_tea(uint32_t plain[2], uint32_t cipher[2], uint32_t key[4]) {
