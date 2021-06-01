@@ -259,7 +259,7 @@ int pre_order(struct tree_node * root, int count, struct node * ls) {
         for (int i = 0; i < num_keys; i++) {
             *((new_node -> keys) + i) = (root -> pairs + i) -> key;
         }
-        return count + 1;
+        return 1;
     }
     int root_num_keys = root -> num_keys;
     count ++;
