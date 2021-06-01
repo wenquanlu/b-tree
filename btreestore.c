@@ -71,7 +71,7 @@ void insert_key_into_node(uint32_t key, struct tree_node node, int position) {
 int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encryption_key[4], uint64_t nonce, void * helper) {
     // Your code here
     struct tree_node * root = helper;
-    uint16_t * info = (uint16_t *) root + 1;
+    uint16_t * info = (uint16_t *) (root + 1);
     uint16_t branching = *info;
     uint16_t n_processors = *(info + 1);
     printf("branch: %d\n", branching);
