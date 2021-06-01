@@ -138,7 +138,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
 
     // if haven't reached root and number of keys > branch + 1
     while (root -> parent != NULL && root -> num_keys > branching + 1) {
-
+        printf("hello\n");
         int midindex = (root -> num_keys - 1)/2;
         int midindex_key = (root -> pairs)[midindex].key;
         struct tree_node * original_child_ptr = root -> children;
@@ -195,7 +195,6 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         parent -> num_keys += 1;
         root = parent;
     }
-    printf("hello\n");
     if (root -> parent == NULL && root -> num_keys > branching + 1) {
         int midindex = (root -> num_keys - 1)/2;
         printf("midindedx: %d\n", midindex);
