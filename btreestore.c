@@ -52,6 +52,7 @@ void post_order_clean(struct tree_node * root) {
         free(((root -> pairs) + i) -> data);
     }
     free(root -> pairs);
+    free(root);
 
 }
 
