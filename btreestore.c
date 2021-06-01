@@ -175,14 +175,14 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
 
         right_node -> num_keys = num_key_right;
         right_node -> children = malloc(sizeof(struct tree_node) * (num_key_right + 1));
-        memcpy(right_node -> children, original_child_ptr + midindex + 1, num_key_right + 1);
-        memcpy(right_node -> pairs, original_kv_ptr + midindex + 1, num_key_right);
+        memcpy(right_node -> children, original_child_ptr + midindex + 1, (num_key_right + 1) * sizeof(struct tree_node));
+        memcpy(right_node -> pairs, original_kv_ptr + midindex + 1, (num_key_right) * sizeof(struct kv_pair));
         right_node -> parent = parent;
 
         left_node -> num_keys = num_key_left;
         left_node -> children = malloc(sizeof(struct tree_node) * (num_key_left + 1));
-        memcpy(left_node -> children, original_child_ptr, num_key_left + 1);
-        memcpy(left_node -> pairs, original_kv_ptr, num_key_left);
+        memcpy(left_node -> children, original_child_ptr, (num_key_left + 1) * sizeof(struct tree_node));
+        memcpy(left_node -> pairs, original_kv_ptr, num_key_left * sizeof(struct kv_pair));
         left_node -> parent = parent;
 
         free(original_child_ptr);
@@ -213,14 +213,18 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         right_node -> children = malloc(sizeof(struct tree_node) * (num_key_right + 1));
         fprintf(stderr, "malloced pointer %p\n", right_node -> children);
         fprintf(stderr, "orginal child ptr: %p\n", original_child_ptr);
-        memcpy(right_node -> children, original_child_ptr + midindex + 1, sizeof(struct tree_node) * (num_key_right + 1));
-        memcpy(right_node -> pairs, original_kv_ptr + midindex + 1, num_key_right);
+        if (original_child_ptr != NULL) {
+            memcpy(right_node -> children, original_child_ptr + midindex + 1, sizeof(struct tree_node) * (num_key_right + 1));
+        }
+        memcpy(right_node -> pairs, original_kv_ptr + midindex + 1, num_key_right * sizeof(struct kv_pair));
         right_node -> parent = root;
 
         left_node -> num_keys = num_key_left;
         left_node -> children = malloc(sizeof(struct tree_node) * (num_key_left + 1));
-        memcpy(left_node -> children, original_child_ptr, num_key_left + 1);
-        memcpy(left_node -> pairs, original_kv_ptr, num_key_left);
+        if (original_child_ptr != NULL) {
+            memcpy(left_node -> children, original_child_ptr, (num_key_left + 1) * sizeof(struct tree_node));
+        }
+        memcpy(left_node -> pairs, original_kv_ptr, num_key_left * sizeof(struct kv_pair));
         left_node -> parent = root;
 
         root -> pairs = malloc(sizeof(struct kv_pair));
