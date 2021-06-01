@@ -1,23 +1,235 @@
 #include "btreestore.h"
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <stdlib.h>
+
+struct kv_pair {
+    uint32_t key;
+    uint32_t size;
+    uint32_t encryption_key[4];
+    uint64_t nonce;
+    void * data;
+};
+
+struct tree_node {
+    uint16_t num_keys;
+    struct kv_pair * pairs;
+    struct tree_node * parent;
+    struct tree_node * children;
+    //char is_leaf;
+};
+
 
 void * init_store(uint16_t branching, uint8_t n_processors) {
     // Your code here
-    uint16_t * info = malloc(2 * sizeof(uint16_t));
+    struct tree_node * root = malloc(sizeof(struct tree_node) + 2 * sizeof(uint16_t) );
+    root -> num_keys = 0;
+    root -> pairs = NULL;
+    root -> parent = NULL;
+    root -> children = NULL;
+    uint16_t * info = (uint16_t *) (root + 1);
     *info = branching;
     *(info + 1) = n_processors;
-    return (void *) info;
+    //root -> is_leaf = 1;
+    return (void *) root;
+}
+
+
+void post_order_clean(struct tree_node * root) {
+    int num_keys = root -> num_keys;
+    if (root -> children == NULL) {
+        for (int i = 0; i < num_keys; i++) {
+            free(((root -> pairs) + i) -> data);
+        }
+        free(root -> pairs);
+        return;
+    }
+    for (int i = 0; i < num_keys + 1; i++) {
+        post_order_clean(root -> children + i);
+    }
+    for (int i = 0; i < num_keys; i++) {
+        free(((root -> pairs) + i) -> data);
+    }
+    free(root -> pairs);
+
 }
 
 void close_store(void * helper) {
     // Your code here
-
-    free(helper);
+    struct tree_node * root = helper;
+    post_order_clean(root);
     return;
+}
+
+void insert_key_into_node(uint32_t key, struct tree_node node, int position) {
+
 }
 
 int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encryption_key[4], uint64_t nonce, void * helper) {
     // Your code here
-    return -1;
+    struct tree_node * root = helper;
+    uint16_t * info = (uint16_t *) root + 1;
+    uint16_t branching = *info;
+    uint16_t n_processors = *(info + 1);
+
+    while (root -> children != NULL) {
+        int count = 0;
+        while (count < (root -> num_keys)) {
+            uint32_t curr_key = ((root -> pairs) + count) -> key;
+            if (curr_key > key) {
+                break;
+            }
+            if (curr_key == key) {
+                return -1;
+            }
+            count ++;
+        }
+        root = (root -> children) + count;
+    }
+    int leaf_count = 0;
+    while (leaf_count < (root -> num_keys)) {
+        uint32_t curr_key = ((root -> pairs) + leaf_count) -> key;
+        if (curr_key > key) {
+            break;
+        }
+        if (curr_key == key) {
+            return -1;
+        }
+        leaf_count ++;
+    }
+
+    // reserve a larger space in root
+    root -> pairs = realloc(root -> pairs, sizeof(struct kv_pair) * (root -> num_keys + 1));
+
+    // shift right to right
+    if (leaf_count != root -> num_keys) {
+        memmove((root -> pairs) + leaf_count + 1, (root -> pairs) + leaf_count, 
+        sizeof(struct kv_pair) * (root -> num_keys - leaf_count));
+    }
+
+    // Insert new kv in 
+    struct kv_pair * new_kv = root -> pairs + leaf_count;
+    new_kv -> key = key;
+    new_kv -> size = count;
+
+    // encrypts the data
+    for (int i = 0; i < 4; i++) {
+        (new_kv -> encryption_key)[i] = encryption_key[i];
+    }
+    new_kv -> nonce = nonce;
+    int num_blocks = count / 8;
+    if (count % 8 != 0) {
+        num_blocks ++;
+    }
+
+    // initialise with 0
+    new_kv -> data = calloc(1, num_blocks * 8);
+    encrypt_tea_ctr(plaintext, encryption_key, nonce, new_kv -> data, num_blocks);
+
+    // update num keys of root node
+    root -> num_keys ++;
+    if (root -> num_keys <= branching - 1) {
+        return 0;
+    }
+
+    // if haven't reached root and number of keys > branch + 1
+    while (root -> parent != NULL && root -> num_keys > branching + 1) {
+
+        int midindex = (root -> num_keys - 1)/2;
+        int midindex_key = (root -> pairs)[midindex].key;
+        struct tree_node * original_child_ptr = root -> children;
+        struct kv_pair * original_kv_ptr = root -> pairs;
+        int original_num_keys = root -> num_keys;
+        struct tree_node * parent = root -> parent;
+        int counter = 0;
+        for (; counter < parent -> num_keys; counter ++) {
+            uint32_t curr_key = ((parent -> pairs) + counter) -> key;
+            if (curr_key > midindex_key) {
+                break;
+            }
+        }
+        parent -> pairs = realloc(parent -> pairs, 
+        (parent -> num_keys + 1) * sizeof(struct kv_pair));
+        memmove((parent -> pairs) + counter + 1, (parent -> pairs) + counter, 
+        sizeof(struct kv_pair) * (parent -> num_keys - counter));
+
+        struct kv_pair * new_kv = parent -> pairs + counter;
+        memcpy(new_kv, original_kv_ptr + midindex, sizeof(struct kv_pair));
+        
+        parent -> children = realloc(parent -> children,
+        (parent -> num_keys + 1 + 1) * sizeof(struct tree_node));
+
+        if (counter != parent -> num_keys) {
+            memmove((parent -> pairs) + counter + 2, (parent -> pairs) + counter + 1,
+            sizeof(struct tree_node) * (parent -> num_keys - counter)); //needs double check           
+        }
+
+        int num_key_left = midindex;
+        int num_key_right = root -> num_keys - midindex - 1;
+
+        struct tree_node * left_node = (parent -> children)+ counter;
+        struct tree_node * right_node = (parent -> children)+ counter + 1;
+
+        right_node -> num_keys = num_key_right;
+        right_node -> children = malloc(sizeof(struct tree_node) * (num_key_right + 1));
+        memcpy(right_node -> children, original_child_ptr + midindex + 1, num_key_right + 1);
+        memcpy(right_node -> pairs, original_kv_ptr + midindex + 1, num_key_right);
+        right_node -> parent = parent;
+
+        left_node -> num_keys = num_key_left;
+        left_node -> children = malloc(sizeof(struct tree_node) * (num_key_left + 1));
+        memcpy(left_node -> children, original_child_ptr, num_key_left + 1);
+        memcpy(left_node -> pairs, original_kv_ptr, num_key_left);
+        left_node -> parent = parent;
+
+        free(original_child_ptr);
+        for (int i = 0; i < original_num_keys; i++) {
+            free((original_kv_ptr + i) -> data);
+        }
+        free(original_kv_ptr);
+
+        parent -> num_keys += 1;
+        root = parent;
+    }
+
+    if (root -> parent == NULL && root -> num_keys > branching + 1) {
+        int midindex = (root -> num_keys - 1)/2;
+        int midindex_key = (root -> pairs)[midindex].key;
+        int num_key_left = midindex;
+        int num_key_right = root -> num_keys - midindex - 1;
+        int original_num_keys = root ->num_keys;
+        struct tree_node * original_child_ptr = root -> children;
+        struct kv_pair * original_kv_ptr = root -> pairs;
+
+        root -> children = malloc(2 * sizeof(struct tree_node));
+        struct tree_node * left_node = root -> children;
+        struct tree_node * right_node = root -> children + 1;
+
+        right_node -> num_keys = num_key_right;
+        right_node -> children = malloc(sizeof(struct tree_node) * (num_key_right + 1));
+        memcpy(right_node -> children, original_child_ptr + midindex + 1, num_key_right + 1);
+        memcpy(right_node -> pairs, original_kv_ptr + midindex + 1, num_key_right);
+        right_node -> parent = root;
+
+        left_node -> num_keys = num_key_left;
+        left_node -> children = malloc(sizeof(struct tree_node) * (num_key_left + 1));
+        memcpy(left_node -> children, original_child_ptr, num_key_left + 1);
+        memcpy(left_node -> pairs, original_kv_ptr, num_key_left);
+        left_node -> parent = root;
+
+        root -> pairs = malloc(sizeof(struct kv_pair));
+        memcpy(root -> pairs, original_kv_ptr + midindex, sizeof(struct kv_pair));
+
+        free(original_child_ptr);
+        for (int i = 0; i < original_num_keys; i++) {
+            free((original_kv_ptr + i) -> data);
+        }
+        free(original_kv_ptr);
+
+        root -> num_keys = 1;        
+    }
+    return 0;
 }
 
 int btree_retrieve(uint32_t key, struct info * found, void * helper) {
@@ -36,7 +248,7 @@ int btree_delete(uint32_t key, void * helper) {
 }
 
 uint64_t btree_export(void * helper, struct node ** list) {
-    // Your code here
+    
     return 0;
 }
 
