@@ -251,8 +251,8 @@ int btree_delete(uint32_t key, void * helper) {
 
 int pre_order(struct tree_node * root, int count, struct node ** ls) {
     if (root -> children == NULL) {
-        *ls = realloc(ls, (count + 1) * sizeof(struct node));
-        struct node * new_node = ls + count;
+        *ls = realloc(*ls, (count + 1) * sizeof(struct node));
+        struct node * new_node = *ls + count;
         int num_keys = root -> num_keys;
         new_node -> num_keys = num_keys;
         new_node -> keys = malloc(num_keys * sizeof(uint32_t));
@@ -263,8 +263,8 @@ int pre_order(struct tree_node * root, int count, struct node ** ls) {
     }
     int root_num_keys = root -> num_keys;
     count ++; //?
-    *ls = realloc(ls, (count) * sizeof(struct node));
-    struct node * new_node = ls + count - 1;
+    *ls = realloc(*ls, (count) * sizeof(struct node));
+    struct node * new_node = *ls + count - 1;
     new_node -> num_keys = root_num_keys;
     new_node -> keys = malloc(root_num_keys * sizeof(uint32_t));
     for (int i = 0; i < root_num_keys; i++) {
