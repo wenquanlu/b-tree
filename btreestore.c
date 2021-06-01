@@ -74,6 +74,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
     uint16_t * info = (uint16_t *) root + 1;
     uint16_t branching = *info;
     uint16_t n_processors = *(info + 1);
+    printf("branch: %d\n", branching);
 
     while (root -> children != NULL) {
         int count = 0;
