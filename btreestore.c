@@ -79,6 +79,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
     while (root -> children != NULL) {
         int count = 0;
         while (count < (root -> num_keys)) {
+            fprintf(stderr, "numkey!!: %d\n", root -> num_keys);
             uint32_t curr_key = ((root -> pairs) + count) -> key;
             if (curr_key > key) {
                 break;
@@ -151,7 +152,6 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
                 break;
             }
         }
-        fprintf(stderr, "parent pairs: %p\n", parent -> pairs);
         parent -> pairs = realloc(parent -> pairs, 
         (parent -> num_keys + 1) * sizeof(struct kv_pair));
         memmove((parent -> pairs) + counter + 1, (parent -> pairs) + counter, 
@@ -234,8 +234,6 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
 
         root -> pairs = malloc(sizeof(struct kv_pair));
         memcpy(root -> pairs, original_kv_ptr + midindex, sizeof(struct kv_pair));
-
-        root -> num_keys = 1;
 
         free(original_child_ptr);
         for (int i = 0; i < original_num_keys; i++) {
