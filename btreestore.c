@@ -22,7 +22,7 @@ struct tree_node {
 
 
 void * init_store(uint16_t branching, uint8_t n_processors) {
-    fprintf(stderr, "branch: %d\n", branching);
+    //fprintf(stderr, "branch: %d\n", branching);
     // Your code here
     struct tree_node * root = malloc(sizeof(struct tree_node) + 2 * sizeof(uint16_t) );
     root -> num_keys = 0;
@@ -38,20 +38,20 @@ void * init_store(uint16_t branching, uint8_t n_processors) {
 
 
 void post_order_clean(struct tree_node * root) {
-    fprintf(stderr, "keyer: %d\n", root -> pairs -> key);
+    //fprintf(stderr, "keyer: %d\n", root -> pairs -> key);
     int num_keys = root -> num_keys;
     if (root -> children == NULL) {
         for (int i = 0; i < num_keys; i++) {
             free(((root -> pairs) + i) -> data);
         }
         free(root -> pairs);
-        fprintf(stderr, "freed :%p\n", root);
+        //fprintf(stderr, "freed :%p\n", root);
         //free(root);
         return;
     }
     for (int i = 0; i < num_keys + 1; i++) {
-        fprintf(stderr, "num key: %d\n", num_keys);
-        fprintf(stderr, "child root: %p\n", root -> children + i);
+        //fprintf(stderr, "num key: %d\n", num_keys);
+        //fprintf(stderr, "child root: %p\n", root -> children + i);
         post_order_clean(root -> children + i);
     }
     for (int i = 0; i < num_keys; i++) {
@@ -66,13 +66,13 @@ void post_order_clean(struct tree_node * root) {
 void close_store(void * helper) {
     // Your code here
     struct tree_node * root = helper;
-    fprintf(stderr, "the final root: %d\n", root -> pairs -> key);
-    fprintf(stderr, "then left %d\n", root -> children -> pairs ->key);
-    fprintf(stderr, "the right %d\n", (root -> children + 1) -> pairs -> key);
-    fprintf(stderr, "the left left %d\n", root -> children -> children -> pairs -> key);
-    fprintf(stderr, "the left right %d\n", (root -> children -> children + 1) -> pairs -> key);
-    fprintf(stderr, "the right left %d\n", (root -> children + 1) -> children -> pairs -> key);
-    fprintf(stderr, "the right right %d\n", ((root -> children + 1)-> children +1) -> pairs -> key);
+    //fprintf(stderr, "the final root: %d\n", root -> pairs -> key);
+    //fprintf(stderr, "then left %d\n", root -> children -> pairs ->key);
+    //fprintf(stderr, "the right %d\n", (root -> children + 1) -> pairs -> key);
+    //fprintf(stderr, "the left left %d\n", root -> children -> children -> pairs -> key);
+    //fprintf(stderr, "the left right %d\n", (root -> children -> children + 1) -> pairs -> key);
+    //fprintf(stderr, "the right left %d\n", (root -> children + 1) -> children -> pairs -> key);
+    //fprintf(stderr, "the right right %d\n", ((root -> children + 1)-> children +1) -> pairs -> key);
     post_order_clean(root);
     free(helper);
     return;
@@ -83,7 +83,7 @@ void insert_key_into_node(uint32_t key, struct tree_node node, int position) {
 }
 
 int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encryption_key[4], uint64_t nonce, void * helper) {
-    fprintf(stderr, "key!: %d\n", key);
+    //fprintf(stderr, "key!: %d\n", key);
     // Your code here
     struct tree_node * root = helper;
     uint16_t * info = (uint16_t *) (root + 1);
@@ -92,24 +92,24 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
     //printf("branch: %d\n", branching);
     //fprintf(stderr, "branching: %d\n", branching);
     if (key == 5) {
-        fprintf(stderr, "god bless me %d\n", root -> children -> pairs -> key);
+        //fprintf(stderr, "god bless me %d\n", root -> children -> pairs -> key);
     }
 
     while (root -> children != NULL) {
         int count = 0;
         while (count < (root -> num_keys)) {
-            fprintf(stderr, "numkey!!: %d\n", root -> num_keys);
+            //fprintf(stderr, "numkey!!: %d\n", root -> num_keys);
             uint32_t curr_key = ((root -> pairs) + count) -> key;
             if (curr_key > key) {
                 break;
             }
             if (curr_key == key) {
-                fprintf(stderr, "same!\n");
+                //fprintf(stderr, "same!\n");
                 return -1;
             }
             count ++;
         }
-        fprintf(stderr, "changed root\n");
+        //fprintf(stderr, "changed root\n");
         root = (root -> children) + count;
     }
     int leaf_count = 0;
@@ -119,12 +119,12 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
             break;
         }
         if (curr_key == key) {
-            fprintf(stderr, "same!\n");
+            //fprintf(stderr, "same!\n");
             return -1;
         }
         leaf_count ++;
     }
-    fprintf(stderr, "haliluya\n");
+    //fprintf(stderr, "haliluya\n");
     // reserve a larger space in root
     root -> pairs = realloc(root -> pairs, sizeof(struct kv_pair) * (root -> num_keys + 1));
 
@@ -155,23 +155,23 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
 
     // update num keys of root node
     root -> num_keys ++;
-    fprintf(stderr, "root nk ++: %p\n", root -> num_keys);
+    //fprintf(stderr, "root nk ++: %p\n", root -> num_keys);
     if (root -> num_keys <= branching - 1) {
         return 0;
     }
-    fprintf(stderr, "exceeded!, root -> parent: %p\n");
+    //fprintf(stderr, "exceeded!, root -> parent: %p\n");
     // if haven't reached root and number of keys > branch - 1
     if (key == 80) {
-        fprintf(stderr, "god!!!!!!!; %d\n", ((struct tree_node *) helper) ->children ->pairs-> key);
+        //fprintf(stderr, "god!!!!!!!; %d\n", ((struct tree_node *) helper) ->children ->pairs-> key);
     }
     while (root -> parent != NULL && root -> num_keys > branching - 1) {
         int midindex = (root -> num_keys - 1)/2;
         int midindex_key = (root -> pairs)[midindex].key;
         struct tree_node * original_child_ptr = root -> children;
         struct kv_pair * original_kv_ptr = root -> pairs;
-        fprintf(stderr, "prey to god: %d\n", root -> pairs -> key);
-        fprintf(stderr, "prey to god: %d\n", (root -> pairs + 1) -> key);
-        fprintf(stderr, "prey to god: %d\n", (root -> pairs + 2) -> key);
+        //fprintf(stderr, "prey to god: %d\n", root -> pairs -> key);
+        //fprintf(stderr, "prey to god: %d\n", (root -> pairs + 1) -> key);
+        //fprintf(stderr, "prey to god: %d\n", (root -> pairs + 2) -> key);
         int original_num_keys = root -> num_keys;
         struct tree_node * parent = root -> parent;
         int counter = 0;
@@ -206,17 +206,17 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         right_node -> num_keys = num_key_right;
         right_node -> children = malloc(sizeof(struct tree_node) * (num_key_right + 1));
         right_node -> pairs = malloc(sizeof(struct kv_pair) * (num_key_right));
-        fprintf(stderr, "original child pointer: here : %p\n", original_child_ptr);
+        //fprintf(stderr, "original child pointer: here : %p\n", original_child_ptr);
         if (original_child_ptr != NULL) {
             memcpy(right_node -> children, original_child_ptr + midindex + 1, (num_key_right + 1) * sizeof(struct tree_node));
         } else {
             free(right_node -> children);
             right_node -> children = NULL;
         }
-        fprintf(stderr, "num key right: %d\n", num_key_right);
-        fprintf(stderr, "original kv ptr: %p\n", original_kv_ptr);
-        fprintf(stderr, "mi: %d\n", midindex);
-        fprintf(stderr, "original num keys: %d\n", original_num_keys);
+        //fprintf(stderr, "num key right: %d\n", num_key_right);
+        //fprintf(stderr, "original kv ptr: %p\n", original_kv_ptr);
+        //fprintf(stderr, "mi: %d\n", midindex);
+        //fprintf(stderr, "original num keys: %d\n", original_num_keys);
         memcpy(right_node -> pairs, original_kv_ptr + midindex + 1, (num_key_right) * sizeof(struct kv_pair));
         right_node -> parent = parent;
 
@@ -240,14 +240,14 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         free(original_kv_ptr);
         //free(root);
         parent -> num_keys += 1;
-        fprintf(stderr, "now print parent: %p\n", parent -> num_keys);
+        //fprintf(stderr, "now print parent: %p\n", parent -> num_keys);
         root = parent;
     }
-    fprintf(stderr, "should come here\n");
+    //fprintf(stderr, "should come here\n");
     if (root -> parent == NULL && root -> num_keys > branching -1) {
-        fprintf(stderr, "shouldn't go in here right?\n");
+        //fprintf(stderr, "shouldn't go in here right?\n");
         int midindex = (root -> num_keys - 1)/2;
-        fprintf(stderr, "midindedx: %d\n", midindex);
+        //fprintf(stderr, "midindedx: %d\n", midindex);
         int midindex_key = (root -> pairs)[midindex].key;
         int num_key_left = midindex;
         int num_key_right = root -> num_keys - midindex - 1;
@@ -260,24 +260,24 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         struct tree_node * right_node = (root -> children) + 1;
 
         right_node -> num_keys = num_key_right;
-        fprintf(stderr, "num key right: %d\n", num_key_right);
+        //fprintf(stderr, "num key right: %d\n", num_key_right);
         right_node -> children = malloc(sizeof(struct tree_node) * (num_key_right + 1));
         right_node -> pairs = malloc(sizeof(struct kv_pair) * (num_key_right));
-        fprintf(stderr, "malloced pointer %p\n", right_node -> children);
-        fprintf(stderr, "orginal child ptr: %p\n", original_child_ptr);
+        //fprintf(stderr, "malloced pointer %p\n", right_node -> children);
+        //fprintf(stderr, "orginal child ptr: %p\n", original_child_ptr);
         if (original_child_ptr != NULL) {
             memcpy(right_node -> children, original_child_ptr + midindex + 1, sizeof(struct tree_node) * (num_key_right + 1));
         } else {
             free(right_node -> children);
             right_node -> children = NULL;
         }
-        fprintf(stderr, "original kv pointer: %p\n", original_kv_ptr);
-        fprintf(stderr, "right node pairs: %p\n", right_node -> pairs);
+        //fprintf(stderr, "original kv pointer: %p\n", original_kv_ptr);
+        //fprintf(stderr, "right node pairs: %p\n", right_node -> pairs);
         memcpy(right_node -> pairs, original_kv_ptr + midindex + 1, num_key_right * sizeof(struct kv_pair));
         right_node -> parent = root;
 
         left_node -> num_keys = num_key_left;
-        fprintf(stderr, "num key left: %d\n", left_node -> num_keys);
+        //fprintf(stderr, "num key left: %d\n", left_node -> num_keys);
         left_node -> children = malloc(sizeof(struct tree_node) * (num_key_left + 1));
         left_node -> pairs = malloc(sizeof(struct kv_pair) * num_key_left);
         if (original_child_ptr != NULL) {
