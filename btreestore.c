@@ -45,7 +45,7 @@ void post_order_clean(struct tree_node * root) {
         }
         free(root -> pairs);
         fprintf(stderr, "freed :%p\n", root);
-        free(root);
+        //free(root);
         return;
     }
     for (int i = 0; i < num_keys + 1; i++) {
@@ -56,7 +56,8 @@ void post_order_clean(struct tree_node * root) {
         free(((root -> pairs) + i) -> data);
     }
     free(root -> pairs);
-    free(root);
+    free(root -> children);
+    //free(root);
 
 }
 
@@ -64,6 +65,7 @@ void close_store(void * helper) {
     // Your code here
     struct tree_node * root = helper;
     post_order_clean(root);
+    free(helper);
     return;
 }
 
