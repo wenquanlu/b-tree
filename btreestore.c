@@ -105,7 +105,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         }
         leaf_count ++;
     }
-
+    fprintf(stderr, "haliluya\n");
     // reserve a larger space in root
     root -> pairs = realloc(root -> pairs, sizeof(struct kv_pair) * (root -> num_keys + 1));
 
