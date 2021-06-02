@@ -44,7 +44,7 @@ void post_order_clean(struct tree_node * root) {
             free(((root -> pairs) + i) -> data);
         }
         free(root -> pairs);
-        fprintf(stderr, "root!:%p\n", root);
+        fprintf(stderr, "freed :%p\n", root);
         free(root);
         return;
     }
