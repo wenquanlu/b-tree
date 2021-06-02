@@ -333,10 +333,11 @@ int pre_order(struct tree_node * root, int count, struct node ** ls) {
 }
 
 uint64_t btree_export(void * helper, struct node ** list) {
+    /*
     int count = 0;
     struct tree_node * root = helper;
     *list = NULL;
-    return pre_order(root, count, list);
+    return pre_order(root, count, list);*/
 }
 
 void encrypt_tea(uint32_t plain[2], uint32_t cipher[2], uint32_t key[4]) {
