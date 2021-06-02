@@ -247,7 +247,9 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
 
         free(original_child_ptr);
         for (int i = 0; i < original_num_keys; i++) {
-            free((original_kv_ptr + i) -> data);
+            if ((original_kv_ptr + i) ->key != root -> pairs ->key) {
+                free((original_kv_ptr + i) -> data);
+            }
         }
         free(original_kv_ptr);
 
