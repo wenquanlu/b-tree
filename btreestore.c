@@ -134,6 +134,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
 
     // update num keys of root node
     root -> num_keys ++;
+    fprintf(stderr, "root nk ++: %p\n", root -> num_keys);
     if (root -> num_keys <= branching - 1) {
         return 0;
     }
