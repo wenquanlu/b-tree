@@ -183,7 +183,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         (parent -> num_keys + 1 + 1) * sizeof(struct tree_node));
 
         if (counter != parent -> num_keys) {
-            memmove((parent -> pairs) + counter + 2, (parent -> pairs) + counter + 1,
+            memmove((parent -> children) + counter + 2, (parent -> children) + counter + 1,
             sizeof(struct tree_node) * (parent -> num_keys - counter)); //needs double check           
         }
 
