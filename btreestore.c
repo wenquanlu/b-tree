@@ -49,6 +49,7 @@ void post_order_clean(struct tree_node * root) {
         return;
     }
     for (int i = 0; i < num_keys + 1; i++) {
+        fprintf(stderr, "num key: %d\n", num_keys);
         fprintf(stderr, "child root: %p\n", root -> children + i);
         post_order_clean(root -> children + i);
     }
