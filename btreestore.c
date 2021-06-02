@@ -277,7 +277,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         }
         memcpy(left_node -> pairs, original_kv_ptr, num_key_left * sizeof(struct kv_pair));
         left_node -> parent = root;
-        printf("left node key: !!!!!!!%d", root -> children -> pairs -> key);
+        fprintf(stderr, "left node key: !!!!!!!%d", root -> children -> pairs -> key);
         root -> pairs = malloc(sizeof(struct kv_pair));
         memcpy(root -> pairs, original_kv_ptr + midindex, sizeof(struct kv_pair));
 
