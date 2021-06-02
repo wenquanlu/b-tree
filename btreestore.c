@@ -226,6 +226,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         if (original_child_ptr != NULL) {
             memcpy(left_node -> children, original_child_ptr, (num_key_left + 1) * sizeof(struct tree_node));
         } else {
+            free(left_node -> children);
             left_node -> children = NULL;
         }
         memcpy(left_node -> pairs, original_kv_ptr, num_key_left * sizeof(struct kv_pair));
@@ -267,6 +268,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         if (original_child_ptr != NULL) {
             memcpy(right_node -> children, original_child_ptr + midindex + 1, sizeof(struct tree_node) * (num_key_right + 1));
         } else {
+            free(right_node -> children);
             right_node -> children = NULL;
         }
         fprintf(stderr, "original kv pointer: %p\n", original_kv_ptr);
@@ -281,6 +283,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         if (original_child_ptr != NULL) {
             memcpy(left_node -> children, original_child_ptr, (num_key_left + 1) * sizeof(struct tree_node));
         } else {
+            free(left_node -> children);
             left_node -> children = NULL;
         }
         memcpy(left_node -> pairs, original_kv_ptr, num_key_left * sizeof(struct kv_pair));
