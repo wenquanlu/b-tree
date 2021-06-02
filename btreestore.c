@@ -246,11 +246,12 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         memcpy(root -> pairs, original_kv_ptr + midindex, sizeof(struct kv_pair));
 
         free(original_child_ptr);
+        /*
         for (int i = 0; i < original_num_keys; i++) {
             if (i != midindex) {
                 free((original_kv_ptr + i) -> data);
             }
-        }
+        }*/
         free(original_kv_ptr);
 
         root -> num_keys = 1;        
