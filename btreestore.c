@@ -213,6 +213,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         fprintf(stderr, "now print parent: %p\n", parent -> num_keys);
         root = parent;
     }
+    fprintf(stderr, "should come here\n");
     if (root -> parent == NULL && root -> num_keys > branching + 1) {
         int midindex = (root -> num_keys - 1)/2;
         fprintf(stderr, "midindedx: %d\n", midindex);
