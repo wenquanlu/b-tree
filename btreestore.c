@@ -193,13 +193,21 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         right_node -> num_keys = num_key_right;
         right_node -> children = malloc(sizeof(struct tree_node) * (num_key_right + 1));
         fprintf(stderr, "original child pointer: here : %p\n", original_child_ptr);
-        memcpy(right_node -> children, original_child_ptr + midindex + 1, (num_key_right + 1) * sizeof(struct tree_node));
+        if (original_child_ptr != NULL) {
+            memcpy(right_node -> children, original_child_ptr + midindex + 1, (num_key_right + 1) * sizeof(struct tree_node));
+        } else {
+            right_node -> children = NULL;
+        }
         memcpy(right_node -> pairs, original_kv_ptr + midindex + 1, (num_key_right) * sizeof(struct kv_pair));
         right_node -> parent = parent;
 
         left_node -> num_keys = num_key_left;
         left_node -> children = malloc(sizeof(struct tree_node) * (num_key_left + 1));
-        memcpy(left_node -> children, original_child_ptr, (num_key_left + 1) * sizeof(struct tree_node));
+        if (original_child_ptr != NULL) {
+            memcpy(left_node -> children, original_child_ptr, (num_key_left + 1) * sizeof(struct tree_node));
+        } else {
+            left_node -> children = NULL;
+        }
         memcpy(left_node -> pairs, original_kv_ptr, num_key_left * sizeof(struct kv_pair));
         left_node -> parent = parent;
 
