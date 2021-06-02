@@ -162,7 +162,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
     fprintf(stderr, "exceeded!, root -> parent: %p\n");
     // if haven't reached root and number of keys > branch - 1
     if (key == 80) {
-        fprintf(stderr, "god!!!!!!!; %d\n", root ->children ->pairs-> key);
+        fprintf(stderr, "god!!!!!!!; %d\n", ((struct tree_node *) helper) ->children ->pairs-> key);
     }
     while (root -> parent != NULL && root -> num_keys > branching - 1) {
         int midindex = (root -> num_keys - 1)/2;
