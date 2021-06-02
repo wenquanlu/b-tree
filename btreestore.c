@@ -198,7 +198,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         }
 
         int num_key_left = midindex;
-        int num_key_right = root -> num_keys - midindex - 1;
+        int num_key_right = original_num_keys - midindex - 1; //changed
 
         struct tree_node * left_node = (parent -> children)+ counter;
         struct tree_node * right_node = (parent -> children)+ counter + 1;
