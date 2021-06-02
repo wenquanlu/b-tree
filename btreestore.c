@@ -226,7 +226,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
             free((original_kv_ptr + i) -> data);
         }*/
         free(original_kv_ptr);
-        free(root);
+        //free(root);
         parent -> num_keys += 1;
         fprintf(stderr, "now print parent: %p\n", parent -> num_keys);
         root = parent;
