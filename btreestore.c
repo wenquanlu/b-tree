@@ -38,7 +38,7 @@ void * init_store(uint16_t branching, uint8_t n_processors) {
 
 
 void post_order_clean(struct tree_node * root) {
-    fprintf(stderr, "root: %p\n", root);
+    fprintf(stderr, "keyer: %d\n", root -> pairs -> key);
     int num_keys = root -> num_keys;
     if (root -> children == NULL) {
         for (int i = 0; i < num_keys; i++) {
