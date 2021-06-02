@@ -91,9 +91,6 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
     uint16_t n_processors = *(info + 1);
     //printf("branch: %d\n", branching);
     //fprintf(stderr, "branching: %d\n", branching);
-    if (key == 5) {
-        //fprintf(stderr, "god bless me %d\n", root -> children -> pairs -> key);
-    }
 
     while (root -> children != NULL) {
         int count = 0;
@@ -307,8 +304,52 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
 }
 
 int btree_retrieve(uint32_t key, struct info * found, void * helper) {
-    // Your code here
-    return -1;
+    struct tree_node * root = helper;
+    uint16_t * info = (uint16_t *) (root + 1);
+    uint16_t branching = *info;
+    uint16_t n_processors = *(info + 1);
+
+    while (root -> children != NULL) {
+            int count = 0;
+            while (count < (root -> num_keys)) {
+                //fprintf(stderr, "numkey!!: %d\n", root -> num_keys);
+                uint32_t curr_key = ((root -> pairs) + count) -> key;
+                if (curr_key > key) {
+                    break;
+                }
+                if (curr_key == key) {
+                    //fprintf(stderr, "same!\n");
+                    found -> data = ((root -> pairs) + count) -> data;
+                    memcpy(found -> key, ((root -> pairs) + count) -> encryption_key, 
+                    4 * sizeof(uint32_t));
+                    found -> nonce = ((root -> pairs) + count) -> nonce;
+                    found -> size = ((root -> pairs) + count) -> size;
+                    return 0;
+                }
+                count ++;
+            }
+            //fprintf(stderr, "changed root\n");
+            root = (root -> children) + count;
+        }
+    int leaf_count = 0;
+    while (leaf_count < (root -> num_keys)) {
+        uint32_t curr_key = ((root -> pairs) + leaf_count) -> key;
+        if (curr_key > key) {
+            break;
+        }
+        if (curr_key == key) {
+            //fprintf(stderr, "same!\n");
+            found -> data = ((root -> pairs) + leaf_count) -> data;
+            memcpy(found -> key, ((root -> pairs) + leaf_count) -> encryption_key, 
+            4 * sizeof(uint32_t));
+            found -> nonce = ((root -> pairs) + leaf_count) -> nonce;
+            found -> size = ((root -> pairs) + leaf_count) -> size;
+            return 0;
+        }
+        leaf_count ++;
+    }
+
+    return 1;
 }
 
 int btree_decrypt(uint32_t key, void * output, void * helper) {
