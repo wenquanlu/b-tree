@@ -160,6 +160,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         struct tree_node * original_child_ptr = root -> children;
         struct kv_pair * original_kv_ptr = root -> pairs;
         fprintf(stderr, "prey to god: %d\n", root -> pairs -> key);
+        fprintf(stderr, "prey to god: %d\n", (root -> pairs + 1) -> key);
         int original_num_keys = root -> num_keys;
         struct tree_node * parent = root -> parent;
         int counter = 0;
