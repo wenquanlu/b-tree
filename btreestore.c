@@ -189,7 +189,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         struct kv_pair * new_kv = parent -> pairs + counter;
         memcpy(new_kv, original_kv_ptr + midindex, sizeof(struct kv_pair));
         
-        parent -> children = malloc(
+        parent -> children = realloc(parent -> children,
         (parent -> num_keys + 1 + 1) * sizeof(struct tree_node));
 
         if (counter != parent -> num_keys) {
