@@ -22,6 +22,7 @@ struct tree_node {
 
 
 void * init_store(uint16_t branching, uint8_t n_processors) {
+    fprintf(stderr, "branch: %d\n", branching);
     // Your code here
     struct tree_node * root = malloc(sizeof(struct tree_node) + 2 * sizeof(uint16_t) );
     root -> num_keys = 0;
