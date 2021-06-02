@@ -66,6 +66,8 @@ void close_store(void * helper) {
     // Your code here
     struct tree_node * root = helper;
     fprintf(stderr, "the final root: %d\n", root -> pairs -> key);
+    fprintf(stderr, "then left %d\n", root -> children -> pairs ->key);
+    fprintf(stderr, "the right %d\n", (root -> children + 1) -> pairs -> key);
     post_order_clean(root);
     free(helper);
     return;
