@@ -91,6 +91,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
             }
             count ++;
         }
+        fprintf(stderr, "changed root\n");
         root = (root -> children) + count;
     }
     int leaf_count = 0;
