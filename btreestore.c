@@ -151,7 +151,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
                 break;
             }
         }
-        fprintf("parent pairs: %p\n", parent -> pairs);
+        fprintf(stderr, "parent pairs: %p\n", parent -> pairs);
         parent -> pairs = realloc(parent -> pairs, 
         (parent -> num_keys + 1) * sizeof(struct kv_pair));
         memmove((parent -> pairs) + counter + 1, (parent -> pairs) + counter, 
