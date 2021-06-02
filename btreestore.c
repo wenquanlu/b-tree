@@ -69,8 +69,9 @@ void close_store(void * helper) {
     fprintf(stderr, "the final root: %d\n", root -> pairs -> key);
     fprintf(stderr, "then left %d\n", root -> children -> pairs ->key);
     fprintf(stderr, "the right %d\n", (root -> children + 1) -> pairs -> key);
-    fprintf(stderr, "the left left %d\n", root -> children -> children -> pairs -> key);
+    fprintf(stderr, "the left left %p\n", root -> children -> children);
     fprintf(stderr, "the left right %d\n", (root -> children -> children + 1) -> pairs -> key);
+    fprintf(stderr, "the right left %d\n", (root -> children + 1) -> children -> pairs -> key);
     post_order_clean(root);
     free(helper);
     return;
