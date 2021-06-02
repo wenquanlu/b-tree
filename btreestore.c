@@ -152,7 +152,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
     if (root -> num_keys <= branching - 1) {
         return 0;
     }
-    fprintf(stderr, "exceeded!, root -> parent: %p\n, root -> parent");
+    fprintf(stderr, "exceeded!, root -> parent: %p\n");
     // if haven't reached root and number of keys > branch - 1
     while (root -> parent != NULL && root -> num_keys > branching - 1) {
         int midindex = (root -> num_keys - 1)/2;
@@ -214,7 +214,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         root = parent;
     }
     fprintf(stderr, "should come here\n");
-    if (root -> parent == NULL && root -> num_keys > branching + 1) {
+    if (root -> parent == NULL && root -> num_keys > branching -1) {
         int midindex = (root -> num_keys - 1)/2;
         fprintf(stderr, "midindedx: %d\n", midindex);
         int midindex_key = (root -> pairs)[midindex].key;
