@@ -198,6 +198,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         } else {
             right_node -> children = NULL;
         }
+        fprintf(stderr, "num key right: %d\n", num_key_right);
         memcpy(right_node -> pairs, original_kv_ptr + midindex + 1, (num_key_right) * sizeof(struct kv_pair));
         right_node -> parent = parent;
 
