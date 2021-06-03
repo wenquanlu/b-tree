@@ -145,7 +145,8 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
     if (count % 8 != 0) {
         num_blocks ++;
     }
-
+    fprintf(stderr, "size in byte: %d\n", count);
+    fprintf(stderr, "size in block: %d\n", num_blocks);
     // initialise with 0
     new_kv -> data = calloc(1, num_blocks * 8);
     encrypt_tea_ctr(plaintext, encryption_key, nonce, new_kv -> data, num_blocks);
