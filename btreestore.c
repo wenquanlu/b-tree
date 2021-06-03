@@ -353,8 +353,43 @@ int btree_retrieve(uint32_t key, struct info * found, void * helper) {
 }
 
 int btree_decrypt(uint32_t key, void * output, void * helper) {
-    // Your code here
-    return -1;
+    struct tree_node * root = helper;
+    uint16_t * info = (uint16_t *) (root + 1);
+    uint16_t branching = *info;
+    uint16_t n_processors = *(info + 1);
+
+    while (root -> children != NULL) {
+            int count = 0;
+            while (count < (root -> num_keys)) {
+                //fprintf(stderr, "numkey!!: %d\n", root -> num_keys);
+                uint32_t curr_key = ((root -> pairs) + count) -> key;
+                if (curr_key > key) {
+                    break;
+                }
+                if (curr_key == key) {
+                    memcpy(output, ((root -> pairs) + count) -> data, 
+                        ((root -> pairs) + count) -> size);
+                    return 0;
+                }
+                count ++;
+            }
+            //fprintf(stderr, "changed root\n");
+            root = (root -> children) + count;
+        }
+    int leaf_count = 0;
+    while (leaf_count < (root -> num_keys)) {
+        uint32_t curr_key = ((root -> pairs) + leaf_count) -> key;
+        if (curr_key > key) {
+            break;
+        }
+        if (curr_key == key) {
+            memcpy(output, ((root -> pairs) + leaf_count) -> data, 
+                ((root -> pairs) + leaf_count) -> size);
+            return 0;
+        }
+        leaf_count ++;
+    }
+    return 1;
 }
 
 int btree_delete(uint32_t key, void * helper) {
