@@ -382,6 +382,7 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
                     , ((root -> pairs) + count) -> encryption_key,
                     ((root -> pairs) + count) -> nonce, plain, num_blocks);
                     memcpy(output, plain, ((root -> pairs) + count) -> size);
+                    free(plain);
                     return 0;
                 }
                 count ++;
@@ -408,6 +409,7 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
                 , ((root -> pairs) + leaf_count) -> encryption_key,
                 ((root -> pairs) + leaf_count) -> nonce, plain, num_blocks);
                 memcpy(output, plain, ((root -> pairs) + leaf_count) -> size);
+                free(plain);
                 return 0;
         }
         leaf_count ++;
