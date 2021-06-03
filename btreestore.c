@@ -493,7 +493,7 @@ void encrypt_tea_ctr(uint64_t * plain, uint32_t key[4], uint64_t nonce, uint64_t
         uint64_t tmp1 = i ^ nonce;
         uint64_t tmp2;
         encrypt_tea((uint32_t *) &tmp1, (uint32_t *) &tmp2, key);
-        cipher[i] = plain[i]; //^ tmp2;
+        cipher[i] = 1;//plain[i]; //^ tmp2;
     }
     return;
 }
