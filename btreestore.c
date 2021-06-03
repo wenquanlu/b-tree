@@ -142,9 +142,9 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
     }
     new_kv -> nonce = nonce;
     int num_blocks = count / 8;
-    if (count % 8 != 0) {
-        num_blocks ++;
-    }
+    //if (count % 8 != 0) {
+    num_blocks ++;
+    //}
 
     // initialise with 0
     new_kv -> data = calloc(1, num_blocks * 8);
