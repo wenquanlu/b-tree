@@ -143,7 +143,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
     new_kv -> nonce = nonce;
     int num_blocks = count / 8;
     if (count % 8 != 0) {
-        num_blocks ++;
+        num_blocks += 2;
     }
     fprintf(stderr, "size in byte: %d\n", count);
     fprintf(stderr, "size in block: %d\n", num_blocks);
@@ -493,7 +493,6 @@ void encrypt_tea_ctr(uint64_t * plain, uint32_t key[4], uint64_t nonce, uint64_t
         uint64_t tmp1 = i ^ nonce;
         uint64_t tmp2;
         encrypt_tea((uint32_t *) &tmp1, (uint32_t *) &tmp2, key);
-        fprintf(stderr, "i: %d\n", i);
         cipher[i] = plain[i] ^ tmp2;
     }
     return;
