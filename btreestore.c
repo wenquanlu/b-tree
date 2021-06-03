@@ -149,7 +149,9 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
     //fprintf(stderr, "size in block: %d\n", num_blocks);
     // initialise with 0
     new_kv -> data = calloc(1, num_blocks * 8);
-    encrypt_tea_ctr(plaintext, encryption_key, nonce, new_kv -> data, num_blocks);
+    uint64_t * plain = malloc(num_blocks  * 8);
+    memcpy(plain, plaintext, count);
+    encrypt_tea_ctr(plain, encryption_key, nonce, new_kv -> data, num_blocks);
 
     // update num keys of root node
     root -> num_keys ++;
