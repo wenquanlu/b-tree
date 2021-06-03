@@ -377,9 +377,11 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
                     } else {
                         num_blocks = num_bytes/8 + 1;
                     }
+                    uint64_t * plain = malloc(num_blocks * 8);
                     decrypt_tea_ctr(((root -> pairs) + count) -> data
                     , ((root -> pairs) + count) -> encryption_key,
-                    ((root -> pairs) + count) -> nonce, output, num_blocks);
+                    ((root -> pairs) + count) -> nonce, plain, num_blocks);
+                    memcpy(output, plain, ((root -> pairs) + count) -> size);
                     return 0;
                 }
                 count ++;
@@ -401,9 +403,11 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
                 } else {
                     num_blocks = num_bytes/8 + 1;
                 }
+                uint64_t * plain = malloc(num_blocks * 8);
                 decrypt_tea_ctr(((root -> pairs) + leaf_count) -> data
                 , ((root -> pairs) + leaf_count) -> encryption_key,
-                ((root -> pairs) + leaf_count) -> nonce, output, num_blocks);
+                ((root -> pairs) + leaf_count) -> nonce, plain, num_blocks);
+                memcpy(output, plain, ((root -> pairs) + leaf_count) -> size);
                 return 0;
         }
         leaf_count ++;
