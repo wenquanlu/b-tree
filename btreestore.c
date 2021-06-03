@@ -408,7 +408,7 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
 
 int btree_delete(uint32_t key, void * helper) {
     // Your code here
-    return -1;
+    return 1;
 }
 
 int pre_order(struct tree_node * root, int count, struct node ** ls) {
