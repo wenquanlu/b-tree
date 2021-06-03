@@ -369,10 +369,10 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
                 if (curr_key == key) {
                     int num_bytes = ((root -> pairs) + count) -> size;
                     int num_blocks;
-                    if (num_bytes % 64 == 0) {
-                        num_blocks = num_bytes/64;
+                    if (num_bytes % 8 == 0) {
+                        num_blocks = num_bytes/8;
                     } else {
-                        num_blocks = num_bytes/64 + 1;
+                        num_blocks = num_bytes/8 + 1;
                     }
                     decrypt_tea_ctr(output, ((root -> pairs) + count) -> encryption_key,
                     ((root -> pairs) + count) -> nonce, output, num_blocks);
@@ -392,10 +392,10 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
         if (curr_key == key) {
                 int num_bytes = ((root -> pairs) + leaf_count) -> size;
                 int num_blocks;
-                if (num_bytes % 64 == 0) {
-                    num_blocks = num_bytes/64;
+                if (num_bytes % 8 == 0) {
+                    num_blocks = num_bytes/8;
                 } else {
-                    num_blocks = num_bytes/64 + 1;
+                    num_blocks = num_bytes/8 + 1;
                 }
                 decrypt_tea_ctr(output, ((root -> pairs) + leaf_count) -> encryption_key,
                 ((root -> pairs) + leaf_count) -> nonce, output, num_blocks);
