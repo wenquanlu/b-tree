@@ -489,11 +489,11 @@ void decrypt_tea(uint32_t cipher[2], uint32_t plain[2], uint32_t key[4]) {
 }
 
 void encrypt_tea_ctr(uint64_t * plain, uint32_t key[4], uint64_t nonce, uint64_t * cipher, uint32_t num_blocks) {
-    for (int i = 0; i < num_blocks; i++) {
+    for (int i = 0; i <= num_blocks; i++) {
         uint64_t tmp1 = i ^ nonce;
         uint64_t tmp2;
         encrypt_tea((uint32_t *) &tmp1, (uint32_t *) &tmp2, key);
-        cipher[i] = 1;//plain[i]; //^ tmp2;
+        cipher[i] = plain[i] ^ tmp2;
     }
     return;
 }
