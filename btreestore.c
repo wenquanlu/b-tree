@@ -145,8 +145,8 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
     if (count % 8 != 0) {
         num_blocks ++;
     }
-    fprintf(stderr, "size in byte: %d\n", count);
-    fprintf(stderr, "size in block: %d\n", num_blocks);
+    //fprintf(stderr, "size in byte: %d\n", count);
+    //fprintf(stderr, "size in block: %d\n", num_blocks);
     // initialise with 0
     new_kv -> data = calloc(1, num_blocks * 8);
     encrypt_tea_ctr(plaintext, encryption_key, nonce, new_kv -> data, num_blocks);
@@ -489,7 +489,7 @@ void decrypt_tea(uint32_t cipher[2], uint32_t plain[2], uint32_t key[4]) {
 }
 
 void encrypt_tea_ctr(uint64_t * plain, uint32_t key[4], uint64_t nonce, uint64_t * cipher, uint32_t num_blocks) {
-    for (int i = 0; i <= num_blocks; i++) {
+    for (int i = 0; i < num_blocks; i++) {
         uint64_t tmp1 = i ^ nonce;
         uint64_t tmp2;
         encrypt_tea((uint32_t *) &tmp1, (uint32_t *) &tmp2, key);
