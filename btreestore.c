@@ -161,9 +161,6 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
     }
     //fprintf(stderr, "exceeded!, root -> parent: %p\n");
     // if haven't reached root and number of keys > branch - 1
-    if (key == 80) {
-        //fprintf(stderr, "god!!!!!!!; %d\n", ((struct tree_node *) helper) ->children ->pairs-> key);
-    }
     while (root -> parent != NULL && root -> num_keys > branching - 1) {
         int midindex = (root -> num_keys - 1)/2;
         int midindex_key = (root -> pairs)[midindex].key;
@@ -417,8 +414,309 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
     return 1;
 }
 
+void swap_key(struct tree_node * node1, int key_index1, struct tree_node * node2, int key_index2) {
+    struct kv_pair tmp = {};
+    memcpy(&tmp, (node1 -> pairs) + key_index1, sizeof(struct kv_pair));
+    memcpy((node1 -> pairs) + key_index1, (node2 -> pairs) + key_index2, sizeof(struct kv_pair));
+    memcpy((node2 -> pairs) + key_index2, &tmp, sizeof(struct kv_pair));
+}
+
+void delete_key_from_leaf_node(struct tree_node * node, int key_index) {
+    struct kv_pair * original_key = node -> pairs;
+    node -> pairs = malloc((node -> num_keys - 1) * sizeof(struct kv_pair));
+    for (int i = 0; i < key_index; i++) {
+        memcpy((node -> pairs) + i, (original_key + i), sizeof(struct kv_pair));
+    }
+    for (int i = key_index + 1; i < node -> num_keys; i++) {
+        memcpy((node -> pairs) + i - 1, (original_key + i), sizeof(struct kv_pair));
+    }
+    free((original_key + key_index) -> data);
+    free(original_key);
+    (node -> num_keys) --;
+}
+
+struct kv_pair* delete_key_from_leaf_node_with_return(struct tree_node * node, 
+        int key_index) {
+    struct kv_pair * original_key = node -> pairs;
+    node -> pairs = malloc((node -> num_keys - 1) * sizeof(struct kv_pair));
+    for (int i = 0; i < key_index; i++) {
+        memcpy((node -> pairs) + i, (original_key + i), sizeof(struct kv_pair));
+    }
+    for (int i = key_index + 1; i < node -> num_keys; i++) {
+        memcpy((node -> pairs) + i - 1, (original_key + i), sizeof(struct kv_pair));
+    }
+    struct kv_pair * deleted_key = malloc(sizeof(struct kv_pair));
+    memcpy(deleted_key, original_key + key_index, sizeof(struct kv_pair));
+    free(original_key);
+    (node -> num_keys) --;
+    return deleted_key;
+}
+
+void insert_key_into_leaf_node(struct tree_node * leaf_node, struct kv_pair * kv) {
+    int count = 0;
+    struct kv_pair * original_key = leaf_node -> pairs;
+    while (count < (leaf_node -> num_keys)) {
+        uint32_t curr_key = ((leaf_node -> pairs) + count) -> key;
+        if (curr_key > kv -> key) {
+            break;
+        }
+        count ++;
+    }
+    leaf_node -> pairs = malloc((leaf_node -> num_keys + 1) * sizeof(struct kv_pair));
+    for (int i = 0; i < count; i++) {
+        memcpy((leaf_node -> pairs) + i, original_key + i, sizeof(struct kv_pair));
+    }
+    memcpy((leaf_node -> pairs) + count, kv, sizeof(struct kv_pair));
+    for (int i = count + 1; i < leaf_node -> num_keys; i++) {
+        memcpy((leaf_node -> pairs) + i + 1, original_key + i, sizeof(struct kv_pair));
+    }
+    free(original_key);
+    (leaf_node -> num_keys) ++;
+}
+
+void move_key_to_leaf(struct tree_node *source_node, int key_index, struct tree_node * leaf_node) {
+    struct kv_pair tmp = {};
+    memcpy(&tmp, (source_node -> pairs) + key_index, sizeof(struct kv_pair));
+    insert_key_into_leaf_node(leaf_node, &tmp);
+}
+
+
+void merge_from_left(struct tree_node * left_node, struct tree_node * right_node,
+                 struct tree_node * parent, int inter_key_idx) {
+    struct kv_pair * original_left_child_keys = left_node -> pairs;
+    struct tree_node * original_left_children = left_node -> children;
+    struct kv_pair * original_right_child_keys = right_node -> pairs;
+    // remember to fee original left and right
+    struct kv_pair * original_right_children = right_node -> children;
+    struct kv_pair * original_parent_keys = parent -> pairs;
+    struct tree_node * original_parent_children = parent -> children;
+    int left_node_num_keys = left_node -> num_keys;
+    right_node -> pairs = malloc(((right_node -> num_keys) + 
+    left_node_num_keys + 1) * sizeof(struct kv_pair));
+    memcpy(right_node -> pairs, left_node -> pairs, 
+            left_node_num_keys * sizeof(struct kv_pair));
+    memcpy(right_node -> pairs + (left_node -> num_keys), parent -> pairs + inter_key_idx,
+            sizeof(struct kv_pair));
+    memcpy(right_node -> pairs + left_node_num_keys + 1, original_right_child_keys,
+            sizeof(struct kv_pair) * (right_node-> num_keys));
+    free(original_right_child_keys);
+    free(original_left_child_keys);
+    if (left_node -> children != NULL) {
+        right_node -> children = malloc(((right_node ->num_keys + 1) + (left_node_num_keys + 1)) * 
+                                        sizeof(struct tree_node));
+        memcpy(right_node -> children, original_left_children, (left_node_num_keys + 1) * sizeof(struct tree_node));
+        if (right_node -> children != NULL) {
+            memcpy(right_node -> children + left_node_num_keys + 1, original_right_children,
+                    (right_node -> num_keys + 1) * sizeof(struct tree_node));
+        }
+        free(original_right_children);
+        //free(original_left_children);
+    }
+    free(left_node -> children);
+    parent -> children = malloc(((parent -> num_keys) * sizeof(struct tree_node)));
+    parent -> pairs = malloc(((parent -> num_keys) - 1) * sizeof(struct kv_pair));
+    memcpy(parent -> pairs, original_parent_keys, inter_key_idx * sizeof(struct kv_pair));
+    memcpy(parent -> pairs + inter_key_idx, 
+            original_parent_keys + (inter_key_idx) + 1, 
+            ((parent -> num_keys) - inter_key_idx - 1) * sizeof(struct kv_pair));
+    
+    memcpy(parent -> children, original_parent_keys, inter_key_idx * sizeof(struct tree_node));
+    memcpy((parent -> children) + inter_key_idx,
+            original_parent_children + inter_key_idx + 1,
+            ((parent -> num_keys) - inter_key_idx) * sizeof(struct tree_node));
+    free(original_parent_children);
+    free(original_parent_keys);
+    (parent -> num_keys) --;
+    free(left_node);
+    right_node -> num_keys = (right_node -> num_keys) + left_node_num_keys + 1;
+}
+
+void merge_from_right(struct tree_node * left_node, struct tree_node * right_node,
+                    struct tree_node * parent, int inter_key_idx) {
+    struct kv_pair * original_left_child_keys = left_node -> pairs;
+    struct tree_node * oritginal_left_children = left_node -> children;
+    struct kv_pair * original_right_child_keys = right_node -> pairs;
+    struct kv_pair * original_right_children = right_node -> children;
+    struct kv_pair * original_parent_keys = parent -> pairs;
+    struct tree_node * original_parent_children = parent -> children;
+
+    int right_node_num_keys = right_node -> num_keys;
+    left_node -> pairs = realloc(left_node -> pairs, (left_node -> num_keys + 
+    right_node_num_keys + 1) * sizeof(struct kv_pair));
+
+    memcpy(left_node -> pairs + (left_node -> num_keys), parent -> pairs + inter_key_idx,
+            sizeof(struct kv_pair));
+    memcpy(left_node -> pairs + (left_node -> num_keys) + 1, right_node -> pairs,
+            sizeof(struct kv_pair) * right_node_num_keys);
+    free(original_right_child_keys);
+    free(original_left_child_keys);
+
+    if (right_node -> children != NULL) {
+        left_node -> children = realloc(left_node -> children
+        ,((left_node -> num_keys + 1) + 
+        (right_node_num_keys + 1)) * sizeof(struct tree_node));
+        memcpy(left_node -> children, original_right_children, (right_node_num_keys + 1) * sizeof(struct tree_node));
+    }
+    free(right_node -> children);
+    parent -> children = malloc(((parent -> num_keys) * sizeof(struct tree_node)));
+    parent -> pairs = malloc(((parent -> num_keys) - 1) * sizeof(struct kv_pair));
+    memcpy(parent -> pairs, original_parent_keys, inter_key_idx * sizeof(struct kv_pair));
+    memcpy(parent -> pairs + inter_key_idx, 
+            original_parent_keys + (inter_key_idx) + 1, 
+            ((parent -> num_keys) - inter_key_idx - 1) * sizeof(struct kv_pair));
+
+    memcpy(parent -> children, original_parent_keys, inter_key_idx * sizeof(struct tree_node));
+    memcpy((parent -> children) + inter_key_idx,
+            original_parent_children + inter_key_idx + 1,
+            ((parent -> num_keys) - inter_key_idx) * sizeof(struct tree_node));
+    free(original_parent_children);
+    free(original_parent_keys);
+    (parent -> num_keys) --;
+    free(right_node);
+    left_node -> num_keys = (left_node -> num_keys) + right_node_num_keys + 1;
+}
+
 int btree_delete(uint32_t key, void * helper) {
-    // Your code here
+    struct tree_node * root = helper;
+    uint16_t * info = (uint16_t *) (root + 1);
+    uint16_t branching = *info;
+    uint16_t n_processors = *(info + 1);
+    int lower_bound = (branching)/2 + ((branching)%2 != 0);
+    int found = 0;
+    struct tree_node * leaf_node;
+    int leaf_key_index;
+    while (root -> children != NULL) {
+        int count = 0;
+        while (count < (root -> num_keys)) {
+            //fprintf(stderr, "numkey!!: %d\n", root -> num_keys);
+            uint32_t curr_key = ((root -> pairs) + count) -> key;
+            if (curr_key > key) {
+                break;
+            }
+            if (curr_key == key) {
+                found = 1;
+                struct tree_node * left_child_root = ((root -> children) + count);
+                while (left_child_root -> children != NULL) {
+                    left_child_root = 
+                    left_child_root -> children + left_child_root -> num_keys;
+                }
+                swap_key(root, count, left_child_root, left_child_root -> num_keys - 1);
+                leaf_key_index = left_child_root -> num_keys - 1;
+                leaf_node = left_child_root;
+                break;
+            }
+            count ++;
+        }
+        //fprintf(stderr, "changed root\n");
+        root = (root -> children) + count;
+    }
+    
+    int leaf_count = 0;
+    if (!found) {
+        while (leaf_count < (root -> num_keys)) {
+            uint32_t curr_key = ((root -> pairs) + leaf_count) -> key;
+            if (curr_key > key) {
+                break;
+            }
+            if (curr_key == key) {
+                found = 1;
+                leaf_key_index = leaf_count;
+                leaf_node = root;
+                break;
+            }
+            leaf_count ++;
+        }
+    }
+    if (found) {
+        delete_key_from_leaf_node(leaf_node, leaf_count);
+        if (leaf_node -> num_keys + 1 >= lower_bound) {
+            return 0;
+        } else {
+            int parent_num_keys = leaf_node -> parent -> num_keys;
+            struct tree_node * p_children = leaf_node -> parent -> children;
+            int child_index = 0;
+            while (child_index <= parent_num_keys) {
+                if ((p_children + child_index) == leaf_node) {
+                    break;
+                }
+                child_index ++;
+            }
+            if (child_index == 0) {
+                if (((p_children + 1) -> num_keys) + 1 > lower_bound) {
+                    struct tree_node * right_sib = p_children + 1;
+                    struct kv_pair * min = delete_key_from_leaf_node_with_return(
+                        right_sib, 0
+                    );
+                    //remember to free min
+                    move_key_to_leaf(
+                        leaf_node -> parent, child_index, p_children + child_index
+                    );
+                    memcpy((leaf_node -> pairs) + child_index, min, sizeof(struct kv_pair));
+                    free(min);
+                    return 0;
+                }
+            } else if (child_index == parent_num_keys) {
+                if ((p_children + parent_num_keys - 1) -> num_keys + 1 > lower_bound) {
+                    struct tree_node * left_sib = p_children + parent_num_keys - 1;
+                    struct kv_pair * max = delete_key_from_leaf_node_with_return(
+                        left_sib, left_sib -> num_keys
+                    );
+                    move_key_to_leaf(
+                        leaf_node -> parent, child_index - 1, p_children + child_index
+                    );
+                    //remember to free max
+                    // replace
+                    memcpy((leaf_node -> pairs) + child_index - 1, max, sizeof(struct kv_pair));
+                    free(max);
+                    return 0;
+                }
+            } else {
+                int suitable = 0;
+                if ((p_children + child_index - 1) -> num_keys + 1 > lower_bound) {
+                    suitable = 1;
+                    struct tree_node * left_sib = p_children + child_index - 1;
+                    struct kv_pair * max = delete_key_from_leaf_node_with_return(
+                        left_sib, left_sib -> num_keys
+                    );
+                    move_key_to_leaf(
+                        leaf_node -> parent, child_index - 1, p_children + child_index
+                    );
+                    //remember to free max
+                    memcpy((leaf_node -> pairs) + child_index - 1, max, sizeof(struct kv_pair));
+                    free(max);
+                    return 0;
+                }
+                if (!suitable) {
+                    if ((p_children + child_index + 1) -> num_keys > lower_bound) {
+                        struct tree_node * right_sib = p_children + child_index + 1;
+                        struct kv_pair * min = delete_key_from_leaf_node_with_return(
+                            right_sib, 0
+                        );
+                        move_key_to_leaf(
+                        leaf_node -> parent, child_index, p_children + child_index
+                        );
+                        //remember to free min
+                        memcpy((leaf_node -> pairs) + child_index, min, sizeof(struct kv_pair));
+                        free(min);
+                        return 0;
+                    }
+                }
+            }
+            // now here means not returned, so no immediate sibling of the target node can share node
+            if (child_index == 0) {
+                struct tree_node * right_child = p_children + 1;
+                merge_from_right(leaf_node, right_child, leaf_node -> parent, 0);
+            } else {
+                struct tree_node * left_child = p_children + child_index - 1;
+                merge_from_right(left_child, leaf_node, leaf_node -> parent, child_index - 1);
+            }
+            while ((leaf_node -> parent != NULL) && (leaf_node -> parent -> num_keys + 1 < lower_bound)) {
+                
+            }
+        }
+    } else {
+        return 1;
+    }
     return 1;
 }
 
