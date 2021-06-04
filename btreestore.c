@@ -572,7 +572,6 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
     free(original_parent_children);
     free(original_parent_keys);
     (parent -> num_keys) --;
-    free(right_node);
 }
 
 int btree_delete(uint32_t key, void * helper) {
