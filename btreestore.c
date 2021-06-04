@@ -513,6 +513,7 @@ void merge_from_left(struct tree_node * left_node, struct tree_node * right_node
         //free(original_left_children);
     }
     free(left_node -> children);
+    right_node -> num_keys = (right_node -> num_keys) + left_node_num_keys + 1;
     parent -> children = malloc(((parent -> num_keys) * sizeof(struct tree_node)));
     parent -> pairs = malloc(((parent -> num_keys) - 1) * sizeof(struct kv_pair));
     memcpy(parent -> pairs, original_parent_keys, inter_key_idx * sizeof(struct kv_pair));
@@ -528,7 +529,6 @@ void merge_from_left(struct tree_node * left_node, struct tree_node * right_node
     free(original_parent_keys);
     (parent -> num_keys) --;
     free(left_node);
-    right_node -> num_keys = (right_node -> num_keys) + left_node_num_keys + 1;
 }
 
 void merge_from_right(struct tree_node * left_node, struct tree_node * right_node,
@@ -548,7 +548,7 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
             sizeof(struct kv_pair));
     memcpy(left_node -> pairs + (left_node -> num_keys) + 1, right_node -> pairs,
             sizeof(struct kv_pair) * right_node_num_keys);
-    free(original_right_child_keys);
+    free(original_right_child_keys); // edit, deleted another free
 
     if (right_node -> children != NULL) {
         left_node -> children = realloc(left_node -> children
@@ -557,6 +557,7 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
         memcpy(left_node -> children, original_right_children, (right_node_num_keys + 1) * sizeof(struct tree_node));
     }
     free(right_node -> children);
+    left_node -> num_keys = (left_node -> num_keys) + right_node_num_keys + 1;
     parent -> children = malloc(((parent -> num_keys) * sizeof(struct tree_node)));
     parent -> pairs = malloc(((parent -> num_keys) - 1) * sizeof(struct kv_pair));
     memcpy(parent -> pairs, original_parent_keys, inter_key_idx * sizeof(struct kv_pair));
@@ -564,15 +565,14 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
             original_parent_keys + (inter_key_idx) + 1, 
             ((parent -> num_keys) - inter_key_idx - 1) * sizeof(struct kv_pair));
 
-    memcpy(parent -> children, original_parent_keys, inter_key_idx * sizeof(struct tree_node));
+    memcpy(parent -> children, original_parent_keys, (inter_key_idx + 1) * sizeof(struct tree_node));
     memcpy((parent -> children) + inter_key_idx,
-            original_parent_children + inter_key_idx + 1,
-            ((parent -> num_keys) - inter_key_idx) * sizeof(struct tree_node));
+            original_parent_children + inter_key_idx + 2,
+            ((parent -> num_keys) - inter_key_idx - 1) * sizeof(struct tree_node));
     free(original_parent_children);
     free(original_parent_keys);
     (parent -> num_keys) --;
     free(right_node);
-    left_node -> num_keys = (left_node -> num_keys) + right_node_num_keys + 1;
 }
 
 int btree_delete(uint32_t key, void * helper) {
