@@ -678,6 +678,8 @@ int btree_delete(uint32_t key, void * helper) {
                     struct kv_pair * max = delete_key_from_leaf_node_with_return(
                         left_sib, left_sib -> num_keys - 1
                     );
+                    fprintf(stderr, "parent numkey %d\n", leaf_node -> parent -> num_keys);
+                    fprintf(stderr, "child index %d\n", child_index);
                     move_key_to_leaf(
                         leaf_node -> parent, child_index - 1, p_children + child_index
                     );
