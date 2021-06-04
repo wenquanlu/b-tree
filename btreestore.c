@@ -636,7 +636,7 @@ int btree_delete(uint32_t key, void * helper) {
             fprintf(stderr, "parent num1: %d\n", parent_num_keys);
             struct tree_node * p_children = leaf_node -> parent -> children;
             int child_index = 0;
-            while (child_index <= parent_num_keys) {
+            while (child_index < parent_num_keys) {
                 if ((p_children + child_index) == leaf_node) {
                     break;
                 }
