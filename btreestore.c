@@ -438,8 +438,6 @@ void delete_key_from_leaf_node(struct tree_node * node, int key_index) {
 struct kv_pair* delete_key_from_leaf_node_with_return(struct tree_node * node, 
         int key_index) {
     struct kv_pair * original_key = node -> pairs;
-    fprintf(stderr, "num key: %d\n", node -> num_keys);
-    fprintf(stderr, "index: %d\n", key_index);
     node -> pairs = malloc((node -> num_keys - 1) * sizeof(struct kv_pair));
     for (int i = 0; i < key_index; i++) {
         memcpy((node -> pairs) + i, (original_key + i), sizeof(struct kv_pair));
