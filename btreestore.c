@@ -627,6 +627,7 @@ int btree_delete(uint32_t key, void * helper) {
         }
     }
     if (found) {
+        struct tree_node * parent = leaf_node -> parent;
         delete_key_from_leaf_node(leaf_node, leaf_count);
         if (leaf_node -> num_keys + 1 >= lower_bound) {
             return 0;
@@ -712,8 +713,8 @@ int btree_delete(uint32_t key, void * helper) {
                 struct tree_node * left_child = p_children + child_index - 1;
                 merge_from_right(left_child, leaf_node, leaf_node -> parent, child_index - 1);
             }
-            while ((leaf_node -> parent != NULL) && (leaf_node -> parent -> num_keys + 1 < lower_bound)) {
-
+            while ((parent -> parent != NULL) && (parent -> num_keys + 1 < lower_bound)) {
+                break;
             }
         }
     } else {
