@@ -659,7 +659,7 @@ int btree_delete(uint32_t key, void * helper) {
                 if ((p_children + parent_num_keys - 1) -> num_keys + 1 > lower_bound) {
                     struct tree_node * left_sib = p_children + parent_num_keys - 1;
                     struct kv_pair * max = delete_key_from_leaf_node_with_return(
-                        left_sib, left_sib -> num_keys
+                        left_sib, left_sib -> num_keys - 1
                     );
                     move_key_to_leaf(
                         leaf_node -> parent, child_index - 1, p_children + child_index
@@ -676,7 +676,7 @@ int btree_delete(uint32_t key, void * helper) {
                     suitable = 1;
                     struct tree_node * left_sib = p_children + child_index - 1;
                     struct kv_pair * max = delete_key_from_leaf_node_with_return(
-                        left_sib, left_sib -> num_keys
+                        left_sib, left_sib -> num_keys - 1
                     );
                     move_key_to_leaf(
                         leaf_node -> parent, child_index - 1, p_children + child_index
