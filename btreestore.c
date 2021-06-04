@@ -549,7 +549,6 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
     memcpy(left_node -> pairs + (left_node -> num_keys) + 1, right_node -> pairs,
             sizeof(struct kv_pair) * right_node_num_keys);
     free(original_right_child_keys);
-    free(original_left_child_keys);
 
     if (right_node -> children != NULL) {
         left_node -> children = realloc(left_node -> children
@@ -636,7 +635,7 @@ int btree_delete(uint32_t key, void * helper) {
             fprintf(stderr, "parent num1: %d\n", parent_num_keys);
             struct tree_node * p_children = leaf_node -> parent -> children;
             int child_index = 0;
-            while (child_index < parent_num_keys) {
+            while (child_index < parent_num_keys) { // edited <= changed to <
                 if ((p_children + child_index) == leaf_node) {
                     break;
                 }
