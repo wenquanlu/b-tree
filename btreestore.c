@@ -824,7 +824,7 @@ int btree_delete(uint32_t key, void * helper) {
                 fprintf(stderr, "Thank you\n");
                 fprintf(stderr, "c ind: %d\n", child_index);
                 fprintf(stderr, "prey to god: %d\n", (p_children + child_index - 1) -> num_keys);
-                fprintf(stderr, "keier!: %d\n", (p_children + child_index) ->pairs -> key);
+                fprintf(stderr, "keier!: %d\n", leaf_node ->pairs -> key);
                 if ((p_children + child_index - 1) -> num_keys + 1 > lower_bound) {
                     fprintf(stderr, "And you\n");
                     suitable = 1;
