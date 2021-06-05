@@ -203,6 +203,8 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         right_node -> num_keys = num_key_right;
         right_node -> children = malloc(sizeof(struct tree_node) * (num_key_right + 1));
         right_node -> pairs = malloc(sizeof(struct kv_pair) * (num_key_right));
+        right_node -> parent = parent;
+
         //fprintf(stderr, "original child pointer: here : %p\n", original_child_ptr);
         if (original_child_ptr != NULL) {
             memcpy(right_node -> children, original_child_ptr + midindex + 1, (num_key_right + 1) * sizeof(struct tree_node));
@@ -220,6 +222,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         left_node -> num_keys = num_key_left;
         left_node -> children = malloc(sizeof(struct tree_node) * (num_key_left + 1));
         left_node -> pairs = malloc(sizeof(struct kv_pair) * (num_key_left));
+        left_node -> parent = parent;
         if (original_child_ptr != NULL) {
             memcpy(left_node -> children, original_child_ptr, (num_key_left + 1) * sizeof(struct tree_node));
         } else {
@@ -260,6 +263,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         //fprintf(stderr, "num key right: %d\n", num_key_right);
         right_node -> children = malloc(sizeof(struct tree_node) * (num_key_right + 1));
         right_node -> pairs = malloc(sizeof(struct kv_pair) * (num_key_right));
+        right_node -> parent = root;
         //fprintf(stderr, "malloced pointer %p\n", right_node -> children);
         //fprintf(stderr, "orginal child ptr: %p\n", original_child_ptr);
         if (original_child_ptr != NULL) {
@@ -277,6 +281,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         //fprintf(stderr, "num key left: %d\n", left_node -> num_keys);
         left_node -> children = malloc(sizeof(struct tree_node) * (num_key_left + 1));
         left_node -> pairs = malloc(sizeof(struct kv_pair) * num_key_left);
+        left_node -> parent = root;
         if (original_child_ptr != NULL) {
             memcpy(left_node -> children, original_child_ptr, (num_key_left + 1) * sizeof(struct tree_node));
         } else {
