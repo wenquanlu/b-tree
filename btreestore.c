@@ -810,7 +810,7 @@ int btree_delete(uint32_t key, void * helper) {
                 merge_from_left(left_child, leaf_node, leaf_node -> parent, child_index - 1);
             }
             while ((parent -> parent != NULL) && (parent -> num_keys + 1 < lower_bound)) {
-                
+                break;
             }
         }
     } else {
