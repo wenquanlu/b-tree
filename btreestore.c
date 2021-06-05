@@ -849,7 +849,7 @@ int btree_delete(uint32_t key, void * helper) {
                     fprintf(stderr, "hnjsaqsd\n");
                     fprintf(stderr, "nu %d\n", (p_children + child_index + 1) -> num_keys);
                     fprintf(stderr, "lower hound: %d\n", lower_bound);
-                    if ((p_children + child_index + 1) -> num_keys > lower_bound) {
+                    if ((p_children + child_index + 1) -> num_keys + 1 > lower_bound) {
                         struct tree_node * right_sib = p_children + child_index + 1;
                         struct kv_pair * min = delete_key_from_leaf_node_with_return(
                             right_sib, 0
@@ -934,7 +934,7 @@ int btree_delete(uint32_t key, void * helper) {
                         return 0;
                     } 
                     if (!suitable) {
-                        if ((pp_children + pc_index + 1) -> num_keys > lower_bound) {
+                        if ((pp_children + pc_index + 1) -> num_keys + 1 > lower_bound) {
                             struct tree_node * right_sib = pp_children + pc_index + 1;
                             struct kv_pair * min = delete_key_from_leaf_node_with_return(
                                 right_sib, 0
