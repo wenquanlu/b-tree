@@ -718,6 +718,7 @@ int btree_delete(uint32_t key, void * helper) {
     struct tree_node * root = helper;
     uint16_t * info = (uint16_t *) (root + 1);
     uint16_t branching = *info;
+    fprintf(stderr, "branching: %d\n", branching);
     uint16_t n_processors = *(info + 1);
     int lower_bound = (branching)/2 + ((branching)%2 != 0);
     int found = 0;
