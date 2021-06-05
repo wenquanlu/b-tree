@@ -770,6 +770,7 @@ int btree_delete(uint32_t key, void * helper) {
         }
     }
     if (found) {
+        fprintf(stderr, "key: %d\n", leaf_node ->pairs -> key);
         struct tree_node * parent = leaf_node -> parent;
         fprintf(stderr, "pchi: %p\n", parent -> children);
         fprintf(stderr, "actual father: %p\n", parent);
