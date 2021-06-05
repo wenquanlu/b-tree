@@ -979,6 +979,7 @@ int btree_delete(uint32_t key, void * helper) {
                 parent = p_parent;
             }
             if (parent -> num_keys < 1) {
+                fprintf(stderr, "comeon\n");
                 struct tree_node * new_king = parent -> children;
                 new_king -> parent = NULL;
                 memcpy(helper, new_king, sizeof(struct tree_node));
