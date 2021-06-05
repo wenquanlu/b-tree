@@ -639,7 +639,7 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
         fprintf(stderr, "child: %p\n", child);
     }*/
     parent -> children = malloc(((parent -> num_keys) * sizeof(struct tree_node)));
-    fprintf(stderr, "len: %d", parent -> num_keys);
+    fprintf(stderr, "lend: %d", parent -> num_keys);
     parent -> pairs = malloc(((parent -> num_keys) - 1) * sizeof(struct kv_pair));
     memcpy(parent -> pairs, original_parent_keys, inter_key_idx * sizeof(struct kv_pair));
     memcpy(parent -> pairs + inter_key_idx, 
