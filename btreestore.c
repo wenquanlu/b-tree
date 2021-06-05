@@ -634,8 +634,9 @@ int btree_delete(uint32_t key, void * helper) {
             fprintf(stderr, "parent num1: %d\n", parent_num_keys);
             struct tree_node * p_children = leaf_node -> parent -> children;
             int child_index = 0;
-            while (child_index < parent_num_keys) { // edited <= changed to <
+            while (child_index <= parent_num_keys) { // edited <= changed to <
                 if ((p_children + child_index) == leaf_node) {
+                    fprintf(stderr, "match!\n");
                     break;
                 }
                 child_index ++;
@@ -720,7 +721,7 @@ int btree_delete(uint32_t key, void * helper) {
                 merge_from_left(left_child, leaf_node, leaf_node -> parent, child_index - 1);
             }
             while ((parent -> parent != NULL) && (parent -> num_keys + 1 < lower_bound)) {
-                break;
+                
             }
         }
     } else {
