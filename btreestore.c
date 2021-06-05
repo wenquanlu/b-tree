@@ -558,7 +558,7 @@ void merge_from_left(struct tree_node * left_node, struct tree_node * right_node
             original_parent_keys + (inter_key_idx) + 1, 
             ((parent -> num_keys) - inter_key_idx - 1) * sizeof(struct kv_pair));
     
-    memcpy(parent -> children, original_parent_keys, inter_key_idx * sizeof(struct tree_node));
+    memcpy(parent -> children, original_parent_children, inter_key_idx * sizeof(struct tree_node)); // changed from keys to children
     memcpy((parent -> children) + inter_key_idx,
             original_parent_children + inter_key_idx + 1,
             ((parent -> num_keys) - inter_key_idx) * sizeof(struct tree_node));
@@ -616,6 +616,10 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
         }
     }
     /////////
+    for (int i = 0; i <= parent -> num_keys; i++) {
+        struct tree_node * child = parent -> children + i;
+        fprintf("child's child: %p\n", child -> children);
+    }
     parent -> children = malloc(((parent -> num_keys) * sizeof(struct tree_node)));
     parent -> pairs = malloc(((parent -> num_keys) - 1) * sizeof(struct kv_pair));
     memcpy(parent -> pairs, original_parent_keys, inter_key_idx * sizeof(struct kv_pair));
@@ -623,7 +627,7 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
             original_parent_keys + (inter_key_idx) + 1, 
             ((parent -> num_keys) - inter_key_idx - 1) * sizeof(struct kv_pair));
 
-    memcpy(parent -> children, original_parent_children, (inter_key_idx + 1) * sizeof(struct tree_node));
+    memcpy(parent -> children, original_parent_children, (inter_key_idx + 1) * sizeof(struct tree_node)); // changed from key to children
     memcpy((parent -> children) + inter_key_idx,
             original_parent_children + inter_key_idx + 2,
             ((parent -> num_keys) - inter_key_idx - 1) * sizeof(struct tree_node));
@@ -636,8 +640,8 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
         if (child -> children != NULL) {
             fprintf(stderr, "children: %p\n", child -> children);
             fprintf(stderr, "chilchil: %p\n", child);
-            fprintf(stderr, "num: %d\n", child -> num_keys);
-            fprintf(stderr, "key: %d\n", child -> pairs ->key);
+            //fprintf(stderr, "num: %d\n", child -> num_keys);
+            //fprintf(stderr, "key: %d\n", child -> pairs ->key);
             for (int j = 0; j <= child -> num_keys; j++) {
                 (child -> children + j) -> parent = child;
             }
