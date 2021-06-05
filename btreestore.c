@@ -598,6 +598,7 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
     free(original_right_child_keys); // edit, deleted another free
 
     if (right_node -> children != NULL) {
+        fprintf(stderr, "shouldn't go here\n");
         left_node -> children = realloc(left_node -> children
         ,((left_node -> num_keys + 1) + 
         (right_node_num_keys + 1)) * sizeof(struct tree_node));
@@ -628,7 +629,7 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
     memcpy(parent -> pairs + inter_key_idx, 
             original_parent_keys + (inter_key_idx) + 1, 
             ((parent -> num_keys) - inter_key_idx - 1) * sizeof(struct kv_pair));
-
+    fprintf(stderr, "odcbwdo: %p\n", original_parent_children -> children);
     memcpy(parent -> children, original_parent_children, (inter_key_idx + 1) * sizeof(struct tree_node)); // changed from key to children
     memcpy((parent -> children) + inter_key_idx,
             original_parent_children + inter_key_idx + 2,
