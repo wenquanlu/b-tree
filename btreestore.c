@@ -743,7 +743,9 @@ int btree_delete(uint32_t key, void * helper) {
                 leaf_key_index = left_child_root -> num_keys - 1;
                 leaf_node = left_child_root;
                 fprintf(stderr, "leaf: %p\n", leaf_node);
-                fprintf(stderr, "key: %d\n", leaf_node ->pairs -> key);
+                if (key == 22) {
+                    fprintf(stderr, "key: %d\n", (leaf_node ->pairs +1) -> key);
+                }
                 break;
             }
             count ++;
