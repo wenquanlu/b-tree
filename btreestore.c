@@ -616,7 +616,6 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
         }
     }
     /////////
-    fprintf(stderr, "leftn: %p\n", left_node);
     parent -> children = malloc(((parent -> num_keys) * sizeof(struct tree_node)));
     parent -> pairs = malloc(((parent -> num_keys) - 1) * sizeof(struct kv_pair));
     memcpy(parent -> pairs, original_parent_keys, inter_key_idx * sizeof(struct kv_pair));
@@ -636,6 +635,7 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
         struct tree_node * child = parent -> children + i;
         if (child -> children != NULL) {
             fprintf(stderr, "chilchil: %p\n", child);
+            fprintf(stderr, "num: %d\n", child -> num_keys);
             for (int j = 0; j <= child -> num_keys; j++) {
                 (child -> children + j) -> parent = child;
             }
