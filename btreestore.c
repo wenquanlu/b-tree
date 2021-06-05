@@ -540,11 +540,13 @@ void merge_from_left(struct tree_node * left_node, struct tree_node * right_node
     free(left_node -> children);
     right_node -> num_keys = (right_node -> num_keys) + left_node_num_keys + 1;
     ////////
-    for (int i = 0; i <= right_node -> num_keys; i++) {
-        struct tree_node * right_node_child = right_node -> children + i;
-        if (right_node_child -> children != NULL) {
-            for (int j = 0; j <= right_node_child -> num_keys; j++) {
-                (right_node_child -> children + j) -> parent = right_node_child;
+    if (right_node -> children != NULL) {
+        for (int i = 0; i <= right_node -> num_keys; i++) {
+            struct tree_node * right_node_child = right_node -> children + i;
+            if (right_node_child -> children != NULL) {
+                for (int j = 0; j <= right_node_child -> num_keys; j++) {
+                    (right_node_child -> children + j) -> parent = right_node_child;
+                }
             }
         }
     }
@@ -603,11 +605,13 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
     free(right_node -> children);
     left_node -> num_keys = (left_node -> num_keys) + right_node_num_keys + 1;
     /////////
-    for (int i = 0; i <= left_node -> num_keys; i++) {
-        struct tree_node * left_node_child = left_node -> children + i;
-        if (left_node_child -> children != NULL) {
-            for (int j = 0; j <= left_node_child -> num_keys; j++) {
-                (left_node_child -> children + j) -> parent = left_node_child;
+    if (left_node -> children != NULL) {
+        for (int i = 0; i <= left_node -> num_keys; i++) {
+            struct tree_node * left_node_child = left_node -> children + i;
+            if (left_node_child -> children != NULL) {
+                for (int j = 0; j <= left_node_child -> num_keys; j++) {
+                    (left_node_child -> children + j) -> parent = left_node_child;
+                }
             }
         }
     }
