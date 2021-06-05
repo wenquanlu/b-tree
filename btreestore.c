@@ -607,6 +607,7 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
     free(right_node -> children);
     left_node -> num_keys = (left_node -> num_keys) + right_node_num_keys + 1;
     fprintf(stderr, "lef num key: %d\n", left_node -> num_keys);
+    fprintf(stderr, "right nod num: %d\n", right_node_num_keys);
     /////////
     if (left_node -> children != NULL) {
         for (int i = 0; i <= left_node -> num_keys; i++) {
