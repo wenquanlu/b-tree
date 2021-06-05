@@ -634,9 +634,10 @@ int btree_delete(uint32_t key, void * helper) {
             fprintf(stderr, "parent num1: %d\n", parent_num_keys);
             struct tree_node * p_children = leaf_node -> parent -> children;
             int child_index = 0;
+            fprintf(stderr, "children %p\n", leaf_node);
             while (child_index <= parent_num_keys) { // edited <= changed to <
+                fprintf(stderr, "search %p\n", p_children + child_index);
                 if ((p_children + child_index) == leaf_node) {
-                    fprintf(stderr, "match!\n");
                     break;
                 }
                 child_index ++;
