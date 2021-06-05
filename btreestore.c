@@ -773,11 +773,11 @@ int btree_delete(uint32_t key, void * helper) {
         }
     }
     if (found) {
-        fprintf(stderr, "key: %d\n", leaf_node ->pairs -> key);
+        //fprintf(stderr, "key: %d\n", leaf_node ->pairs -> key);
         struct tree_node * parent = leaf_node -> parent;
         fprintf(stderr, "pchi: %p\n", parent -> children);
         fprintf(stderr, "actual father: %p\n", parent);
-        delete_key_from_leaf_node(leaf_node, leaf_count);
+        delete_key_from_leaf_node(leaf_node, leaf_key_index);
         if (leaf_node -> num_keys + 1 >= lower_bound) {
             return 0;
         } else {
