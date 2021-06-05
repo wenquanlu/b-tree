@@ -651,7 +651,7 @@ int btree_delete(uint32_t key, void * helper) {
                     move_key_to_leaf(
                         leaf_node -> parent, child_index, p_children + child_index
                     );
-                    memcpy((leaf_node -> pairs) + child_index, min, sizeof(struct kv_pair));
+                    memcpy((leaf_node -> parent -> pairs) + child_index, min, sizeof(struct kv_pair));
                     free(min);
                     return 0;
                 }
@@ -666,7 +666,7 @@ int btree_delete(uint32_t key, void * helper) {
                     );
                     //remember to free max
                     // replace
-                    memcpy((leaf_node -> pairs) + child_index - 1, max, sizeof(struct kv_pair));
+                    memcpy((leaf_node -> parent -> pairs) + child_index - 1, max, sizeof(struct kv_pair)); // edited leaf_node -> parent
                     free(max);
                     return 0;
                 }
@@ -684,7 +684,7 @@ int btree_delete(uint32_t key, void * helper) {
                         leaf_node -> parent, child_index - 1, p_children + child_index
                     );
                     //remember to free max
-                    memcpy((leaf_node -> pairs) + child_index - 1, max, sizeof(struct kv_pair));
+                    memcpy((leaf_node -> parent -> pairs) + child_index - 1, max, sizeof(struct kv_pair));
                     free(max);
                     return 0;
                 }
@@ -698,7 +698,7 @@ int btree_delete(uint32_t key, void * helper) {
                         leaf_node -> parent, child_index, p_children + child_index
                         );
                         //remember to free min
-                        memcpy((leaf_node -> pairs) + child_index, min, sizeof(struct kv_pair));
+                        memcpy((leaf_node -> parent -> pairs) + child_index, min, sizeof(struct kv_pair));
                         free(min);
                         return 0;
                     }
