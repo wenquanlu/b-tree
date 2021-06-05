@@ -605,6 +605,7 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
         memcpy(left_node -> children, original_right_children, (right_node_num_keys + 1) * sizeof(struct tree_node));
     }
     free(right_node -> children);
+    fprintf(stderr, "lef num key prev: %d\n", left_node -> num_keys);
     left_node -> num_keys = (left_node -> num_keys) + right_node_num_keys + 1;
     fprintf(stderr, "lef num key: %d\n", left_node -> num_keys);
     fprintf(stderr, "right nod num: %d\n", right_node_num_keys);
