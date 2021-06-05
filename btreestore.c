@@ -749,6 +749,7 @@ int pre_order(struct tree_node * root, int count, struct node ** ls) {
     new_node -> keys = malloc(root_num_keys * sizeof(uint32_t));
     for (int i = 0; i < root_num_keys; i++) {
         fprintf(stderr, "i: %d\n", i);
+        fprintf(stderr, "rott -> pair: %p\n", root -> pair);
         *((new_node -> keys) + i) = (root -> pairs + i) -> key;
     }
     for (int i = 0; i < root_num_keys + 1; i++) {
