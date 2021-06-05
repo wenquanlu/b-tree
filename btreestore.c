@@ -606,7 +606,9 @@ int btree_delete(uint32_t key, void * helper) {
             count ++;
         }
         //fprintf(stderr, "changed root\n");
+        fprintf(stderr, "father: %p\n", root);
         root = (root -> children) + count;
+        fprintf(stderr, "son: %p\n", root);
     }
     
     int leaf_count = 0;
