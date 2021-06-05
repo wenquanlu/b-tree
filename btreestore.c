@@ -528,7 +528,6 @@ void merge_from_left(struct tree_node * left_node, struct tree_node * right_node
     free(original_parent_children);
     free(original_parent_keys);
     (parent -> num_keys) --;
-    fprintf(stderr, "parent keier: %d\n", parent-> num_keys);
 }
 
 void merge_from_right(struct tree_node * left_node, struct tree_node * right_node,
@@ -749,8 +748,6 @@ int pre_order(struct tree_node * root, int count, struct node ** ls) {
     new_node -> num_keys = root_num_keys;
     new_node -> keys = malloc(root_num_keys * sizeof(uint32_t));
     for (int i = 0; i < root_num_keys; i++) {
-        fprintf(stderr, "i: %d\n", i);
-        fprintf(stderr, "rott -> pair: %p\n", root -> pairs);
         *((new_node -> keys) + i) = (root -> pairs + i) -> key;
     }
     for (int i = 0; i < root_num_keys + 1; i++) {
