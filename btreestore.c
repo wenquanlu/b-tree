@@ -642,7 +642,9 @@ int btree_delete(uint32_t key, void * helper) {
                 child_index ++;
             }
             if (child_index == 0) {
+                fprintf(stderr, "how are you\n");
                 if (((p_children + 1) -> num_keys) + 1 > lower_bound) {
+                    fprintf(stderr, "I am fine\n");
                     struct tree_node * right_sib = p_children + 1;
                     struct kv_pair * min = delete_key_from_leaf_node_with_return(
                         right_sib, 0
@@ -656,6 +658,7 @@ int btree_delete(uint32_t key, void * helper) {
                     return 0;
                 }
             } else if (child_index == parent_num_keys) {
+                fprintf(stderr, "hi\n");
                 if ((p_children + parent_num_keys - 1) -> num_keys + 1 > lower_bound) {
                     fprintf(stderr, "hello\n");
                     struct tree_node * left_sib = p_children + parent_num_keys - 1;
@@ -673,7 +676,9 @@ int btree_delete(uint32_t key, void * helper) {
                 }
             } else {
                 int suitable = 0;
+                fprintf(stderr, "Thank you\n");
                 if ((p_children + child_index - 1) -> num_keys + 1 > lower_bound) {
+                    fprintf(stderr, "And you\n");
                     suitable = 1;
                     struct tree_node * left_sib = p_children + child_index - 1;
                     struct kv_pair * max = delete_key_from_leaf_node_with_return(
