@@ -631,6 +631,7 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
             ((parent -> num_keys) - inter_key_idx - 1) * sizeof(struct kv_pair));
     fprintf(stderr, "odcbwdo: %p\n", original_parent_children -> children);
     fprintf(stderr, "inter: %d\n", inter_key_idx);
+    fprintf(stderr, "njsa: %p\n", (original_parent_children + 2) -> children);
     memcpy(parent -> children, original_parent_children, (inter_key_idx + 1) * sizeof(struct tree_node)); // changed from key to children
     memcpy((parent -> children) + inter_key_idx,
             original_parent_children + inter_key_idx + 2,
