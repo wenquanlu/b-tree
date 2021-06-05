@@ -712,9 +712,11 @@ int btree_delete(uint32_t key, void * helper) {
             }
             // now here means not returned, so no immediate sibling of the target node can share node
             if (child_index == 0) {
+                fprintf(stderr, "let's see\n");
                 struct tree_node * right_child = p_children + 1;
                 merge_from_right(leaf_node, right_child, leaf_node -> parent, 0);
             } else {
+                fprintf(stderr, "What's wrong\n");
                 struct tree_node * left_child = p_children + child_index - 1;
                 merge_from_right(left_child, leaf_node, leaf_node -> parent, child_index - 1);
             }
