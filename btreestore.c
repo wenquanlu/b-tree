@@ -953,6 +953,7 @@ int btree_delete(uint32_t key, void * helper) {
                 }
                 if (pc_index == 0) {
                     struct tree_node * right_child = pp_children + 1;
+                    fprintf(stderr, "abc: %d\n", right_child -> pairs -> key);
                     merge_from_right(parent, right_child, parent -> parent, 0);
                 } else {
                     struct tree_node * left_child = pp_children + pc_index - 1;
