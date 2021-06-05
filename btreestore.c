@@ -587,7 +587,7 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
     struct tree_node * original_parent_children = parent -> children;
     fprintf(stderr, "left node: %p\n", left_node);
     fprintf(stderr, "right node: %p\n", right_node);
-    fprintf(stderr,"right nodi k: %d\n", right_node -> pairs); //edited
+    fprintf(stderr,"right nodi k: %d\n", right_node -> pairs -> key); //edited
     int right_node_num_keys = right_node -> num_keys;
     left_node -> pairs = realloc(left_node -> pairs, (left_node -> num_keys + 
     right_node_num_keys + 1) * sizeof(struct kv_pair));
