@@ -589,13 +589,13 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
     struct tree_node * original_right_children = right_node -> children;
     struct kv_pair * original_parent_keys = parent -> pairs;
     struct tree_node * original_parent_children = parent -> children;
-    fprintf(stderr, "left node: %p\n", left_node);
-    fprintf(stderr, "right node: %p\n", right_node);
-    fprintf(stderr,"right nodi k: %d\n", right_node -> pairs -> key); //edited
+    //fprintf(stderr, "left node: %p\n", left_node);
+    //fprintf(stderr, "right node: %p\n", right_node);
+    //fprintf(stderr,"right nodi k: %d\n", right_node -> pairs -> key); //edited
     if (right_node -> pairs -> key == 21) {
-        fprintf(stderr, "a: %p\n", original_left_children ->children);
-        fprintf(stderr, "b: %p\n", original_right_children -> children);
-        fprintf(stderr, "c: %p\n", (original_right_children + 1) -> children);
+        //fprintf(stderr, "a: %p\n", original_left_children ->children);
+        //fprintf(stderr, "b: %p\n", original_right_children -> children);
+        //fprintf(stderr, "c: %p\n", (original_right_children + 1) -> children);
     }
     int right_node_num_keys = right_node -> num_keys;
     left_node -> pairs = realloc(left_node -> pairs, (left_node -> num_keys + 
@@ -607,7 +607,7 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
             sizeof(struct kv_pair) * right_node_num_keys);
     free(original_right_child_keys); // edit, deleted another free
     if (right_node -> children != NULL) {
-        fprintf(stderr, "shouldn't go here\n");
+        //fprintf(stderr, "shouldn't go here\n");
         left_node -> children = realloc(left_node -> children
         ,((left_node -> num_keys + 1) + 
         (right_node_num_keys + 1)) * sizeof(struct tree_node));
@@ -615,15 +615,15 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
         , original_right_children, (right_node_num_keys + 1) * sizeof(struct tree_node));
     }
     if (left_node -> children != NULL) {
-        fprintf(stderr, "a: %p\n", left_node -> children ->children);
-        fprintf(stderr, "b: %p\n", (left_node -> children + 1) -> children);
-        fprintf(stderr, "c: %p\n", (left_node  -> children + 2)-> children);
+        //fprintf(stderr, "a: %p\n", left_node -> children ->children);
+        //fprintf(stderr, "b: %p\n", (left_node -> children + 1) -> children);
+        //fprintf(stderr, "c: %p\n", (left_node  -> children + 2)-> children);
     }
     free(right_node -> children);
-    fprintf(stderr, "lef num key prev: %d\n", left_node -> num_keys);
+    //fprintf(stderr, "lef num key prev: %d\n", left_node -> num_keys);
     left_node -> num_keys = (left_node -> num_keys) + right_node_num_keys + 1;
-    fprintf(stderr, "lef num key: %d\n", left_node -> num_keys);
-    fprintf(stderr, "right nod num: %d\n", right_node_num_keys);
+    //fprintf(stderr, "lef num key: %d\n", left_node -> num_keys);
+    //fprintf(stderr, "right nod num: %d\n", right_node_num_keys);
     /////////
     if (left_node -> children != NULL) {
         for (int i = 0; i <= left_node -> num_keys; i++) {
@@ -643,8 +643,8 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
         fprintf(stderr, "child: %p\n", child);
     }*/
     parent -> children = malloc(((parent -> num_keys) * sizeof(struct tree_node)));
-    fprintf(stderr, "len %d\n", parent -> num_keys);
-    fprintf(stderr, "malloc %d\n", ((parent -> num_keys) - 1) * sizeof(struct kv_pair));
+    //fprintf(stderr, "len %d\n", parent -> num_keys);
+    //fprintf(stderr, "malloc %d\n", ((parent -> num_keys) - 1) * sizeof(struct kv_pair));
     if (((parent -> num_keys) - 1) * sizeof(struct kv_pair) == 0) {
         parent -> pairs == NULL;
     } else {
@@ -668,9 +668,9 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
     for (int i = 0; i <= parent -> num_keys; i++) {
         struct tree_node * child = parent -> children + i;
         if (child -> children != NULL) {
-            fprintf(stderr, "i: %d\n", i);
-            fprintf(stderr, "children: %p\n", child -> children);
-            fprintf(stderr, "chilchil: %p\n", child);
+            //fprintf(stderr, "i: %d\n", i);
+            //fprintf(stderr, "children: %p\n", child -> children);
+            //fprintf(stderr, "chilchil: %p\n", child);
             //fprintf(stderr, "num: %d\n", child -> num_keys);
             //fprintf(stderr, "key: %d\n", child -> pairs ->key);
             for (int j = 0; j <= child -> num_keys; j++) {
@@ -738,11 +738,11 @@ void move_c_from_left_to_right(struct tree_node * left_node, struct tree_node * 
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int btree_delete(uint32_t key, void * helper) {
-    fprintf(stderr, "key:: %d\n", key);
+    //fprintf(stderr, "key:: %d\n", key);
     struct tree_node * root = helper;
     uint16_t * info = (uint16_t *) (root + 1);
     uint16_t branching = *info;
-    fprintf(stderr, "branching: %d\n", branching);
+    //fprintf(stderr, "branching: %d\n", branching);
     uint16_t n_processors = *(info + 1);
     int lower_bound = (branching)/2 + ((branching)%2 != 0);
     int found = 0;
@@ -766,10 +766,11 @@ int btree_delete(uint32_t key, void * helper) {
                 swap_key(root, count, left_child_root, left_child_root -> num_keys - 1);
                 leaf_key_index = left_child_root -> num_keys - 1;
                 leaf_node = left_child_root;
-                fprintf(stderr, "leaf: %p\n", leaf_node);
+                //fprintf(stderr, "leaf: %p\n", leaf_node);
+                /*
                 if (key == 22) {
                     fprintf(stderr, "key: %d\n", (leaf_node ->pairs +1) -> key);
-                }
+                }*/
                 break;
             }
             count ++;
@@ -786,11 +787,11 @@ int btree_delete(uint32_t key, void * helper) {
                 break;
             }
             if (curr_key == key) {
-                fprintf(stderr, "root: %p\n", root);
+                //fprintf(stderr, "root: %p\n", root);
                 found = 1;
                 leaf_key_index = leaf_count;
                 leaf_node = root;
-                fprintf(stderr, "key: %d\n", leaf_node ->pairs -> key);
+                //fprintf(stderr, "key: %d\n", leaf_node ->pairs -> key);
                 break;
             }
             leaf_count ++;
@@ -799,28 +800,28 @@ int btree_delete(uint32_t key, void * helper) {
     if (found) {
         //fprintf(stderr, "key: %d\n", leaf_node ->pairs -> key);
         struct tree_node * parent = leaf_node -> parent;
-        fprintf(stderr, "pchi: %p\n", parent -> children);
-        fprintf(stderr, "actual father: %p\n", parent);
+        //fprintf(stderr, "pchi: %p\n", parent -> children);
+        //fprintf(stderr, "actual father: %p\n", parent);
         delete_key_from_leaf_node(leaf_node, leaf_key_index);
         if (leaf_node -> num_keys + 1 >= lower_bound) {
             return 0;
         } else {
             int parent_num_keys = leaf_node -> parent -> num_keys;
-            fprintf(stderr, "parent num1: %d\n", parent_num_keys);
+            //fprintf(stderr, "parent num1: %d\n", parent_num_keys);
             struct tree_node * p_children = leaf_node -> parent -> children;
             int child_index = 0;
-            fprintf(stderr, "children %p\n", leaf_node);
+            //fprintf(stderr, "children %p\n", leaf_node);
             while (child_index <= parent_num_keys) { // edited <= changed to < /wrong change
-                fprintf(stderr, "search %p\n", p_children + child_index);
+                //fprintf(stderr, "search %p\n", p_children + child_index);
                 if ((p_children + child_index) == leaf_node) {
                     break;
                 }
                 child_index ++;
             }
             if (child_index == 0) {
-                fprintf(stderr, "how are you\n");
+                //fprintf(stderr, "how are you\n");
                 if (((p_children + 1) -> num_keys) + 1 > lower_bound) {
-                    fprintf(stderr, "I am fine\n");
+                    //fprintf(stderr, "I am fine\n");
                     struct tree_node * right_sib = p_children + 1;
                     struct kv_pair * min = delete_key_from_leaf_node_with_return(
                         right_sib, 0
@@ -834,9 +835,9 @@ int btree_delete(uint32_t key, void * helper) {
                     return 0;
                 }
             } else if (child_index == parent_num_keys) {
-                fprintf(stderr, "hi\n");
+                //fprintf(stderr, "hi\n");
                 if ((p_children + parent_num_keys - 1) -> num_keys + 1 > lower_bound) {
-                    fprintf(stderr, "hello\n");
+                    //fprintf(stderr, "hello\n");
                     struct tree_node * left_sib = p_children + parent_num_keys - 1;
                     struct kv_pair * max = delete_key_from_leaf_node_with_return(
                         left_sib, left_sib -> num_keys - 1
@@ -852,17 +853,17 @@ int btree_delete(uint32_t key, void * helper) {
                 }
             } else {
                 int suitable = 0;
-                fprintf(stderr, "Thank you\n");
-                fprintf(stderr, "c ind: %d\n", child_index);
+                //fprintf(stderr, "Thank you\n");
+                //fprintf(stderr, "c ind: %d\n", child_index);
                 if ((p_children + child_index - 1) -> num_keys + 1 > lower_bound) {
-                    fprintf(stderr, "And you\n");
+                    //fprintf(stderr, "And you\n");
                     suitable = 1;
                     struct tree_node * left_sib = p_children + child_index - 1;
                     struct kv_pair * max = delete_key_from_leaf_node_with_return(
                         left_sib, left_sib -> num_keys - 1
                     );
-                    fprintf(stderr, "parent numkey %d\n", leaf_node -> parent -> num_keys);
-                    fprintf(stderr, "child index %d\n", child_index);
+                    //fprintf(stderr, "parent numkey %d\n", leaf_node -> parent -> num_keys);
+                    //fprintf(stderr, "child index %d\n", child_index);
                     move_key_to_leaf(
                         leaf_node -> parent, child_index - 1, p_children + child_index
                     );
@@ -872,9 +873,9 @@ int btree_delete(uint32_t key, void * helper) {
                     return 0;
                 }
                 if (!suitable) {
-                    fprintf(stderr, "hnjsaqsd\n");
-                    fprintf(stderr, "nu %d\n", (p_children + child_index + 1) -> num_keys);
-                    fprintf(stderr, "lower hound: %d\n", lower_bound);
+                    //fprintf(stderr, "hnjsaqsd\n");
+                    //fprintf(stderr, "nu %d\n", (p_children + child_index + 1) -> num_keys);
+                    //fprintf(stderr, "lower hound: %d\n", lower_bound);
                     if ((p_children + child_index + 1) -> num_keys + 1 > lower_bound) {
                         struct tree_node * right_sib = p_children + child_index + 1;
                         struct kv_pair * min = delete_key_from_leaf_node_with_return(
@@ -892,11 +893,11 @@ int btree_delete(uint32_t key, void * helper) {
             }
             // now here means not returned, so no immediate sibling of the target node can share node
             if (child_index == 0) {
-                fprintf(stderr, "let's see\n");
+                //fprintf(stderr, "let's see\n");
                 struct tree_node * right_child = p_children + 1;
                 merge_from_right(leaf_node, right_child, leaf_node -> parent, 0);
             } else {
-                fprintf(stderr, "What's wrong\n");
+                //fprintf(stderr, "What's wrong\n");
                 struct tree_node * left_child = p_children + child_index - 1;
                 merge_from_left(left_child, leaf_node, leaf_node -> parent, child_index - 1);
             }
@@ -977,8 +978,8 @@ int btree_delete(uint32_t key, void * helper) {
                 }
                 if (pc_index == 0) {
                     struct tree_node * right_child = pp_children + 1;
-                    fprintf(stderr, "parL: %p\n", parent -> children);
-                    fprintf(stderr, "abc: %d\n", right_child -> pairs -> key);
+                    //fprintf(stderr, "parL: %p\n", parent -> children);
+                    //fprintf(stderr, "abc: %d\n", right_child -> pairs -> key);
                     merge_from_right(parent, right_child, parent -> parent, 0);
                 } else {
                     struct tree_node * left_child = pp_children + pc_index - 1;
@@ -987,7 +988,7 @@ int btree_delete(uint32_t key, void * helper) {
                 parent = p_parent;
             }
             if (parent -> num_keys < 1) {
-                fprintf(stderr, "comeon\n");
+                //fprintf(stderr, "comeon\n");
                 struct tree_node * new_king = parent -> children;
                 new_king -> parent = NULL;
                 memcpy(helper, new_king, sizeof(struct tree_node));
