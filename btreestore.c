@@ -512,7 +512,7 @@ void merge_from_left(struct tree_node * left_node, struct tree_node * right_node
     struct tree_node * original_left_children = left_node -> children;
     struct kv_pair * original_right_child_keys = right_node -> pairs;
     // remember to fee original left and right
-    struct kv_pair * original_right_children = right_node -> children;
+    struct tree_node * original_right_children = right_node -> children;
     struct kv_pair * original_parent_keys = parent -> pairs;
     struct tree_node * original_parent_children = parent -> children;
     int left_node_num_keys = left_node -> num_keys;

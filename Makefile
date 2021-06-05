@@ -17,3 +17,7 @@ performance: btreestore.c
 tests: btreestore.c
 	$(CC) -c $(TESTFLAGS) $^ -o $(OBJECT)
 	ar rcs $(LIBRARY) $(OBJECT)
+
+run_tests:
+	gcc -Werror=vla -std=gnu11 -fsanitize=address -pthread -g -fprofile-arcs -ftest-coverage -o test tests.c -L. -lcmocka-static -lbtreestore
+	./test
