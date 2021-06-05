@@ -600,6 +600,7 @@ int btree_delete(uint32_t key, void * helper) {
                 swap_key(root, count, left_child_root, left_child_root -> num_keys - 1);
                 leaf_key_index = left_child_root -> num_keys - 1;
                 leaf_node = left_child_root;
+                fprintf(stderr, "leaf: %p\n", leaf_node);
                 break;
             }
             count ++;
