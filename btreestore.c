@@ -607,7 +607,8 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
         left_node -> children = realloc(left_node -> children
         ,((left_node -> num_keys + 1) + 
         (right_node_num_keys + 1)) * sizeof(struct tree_node));
-        memcpy(left_node -> children, original_right_children, (right_node_num_keys + 1) * sizeof(struct tree_node));
+        memcpy(left_node -> children + (left_node -> num_keys + 1)
+        , original_right_children, (right_node_num_keys + 1) * sizeof(struct tree_node));
     }
     if (left_node -> children != NULL) {
         fprintf(stderr, "a: %p\n", left_node -> children ->children);
