@@ -505,7 +505,7 @@ void merge_from_left(struct tree_node * left_node, struct tree_node * right_node
         right_node -> children = malloc(((right_node ->num_keys + 1) + (left_node_num_keys + 1)) * 
                                         sizeof(struct tree_node));
         memcpy(right_node -> children, original_left_children, (left_node_num_keys + 1) * sizeof(struct tree_node));
-        if (right_node -> children != NULL) {
+        if (original_right_children != NULL) {
             memcpy(right_node -> children + left_node_num_keys + 1, original_right_children,
                     (right_node -> num_keys + 1) * sizeof(struct tree_node));
         }
