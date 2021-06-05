@@ -842,6 +842,7 @@ int btree_delete(uint32_t key, void * helper) {
                 if (!suitable) {
                     if ((p_children + child_index + 1) -> num_keys > lower_bound) {
                         struct tree_node * right_sib = p_children + child_index + 1;
+                        fprintf(stderr, "right sib!\n");
                         struct kv_pair * min = delete_key_from_leaf_node_with_return(
                             right_sib, 0
                         );
