@@ -623,7 +623,7 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
             original_parent_keys + (inter_key_idx) + 1, 
             ((parent -> num_keys) - inter_key_idx - 1) * sizeof(struct kv_pair));
 
-    memcpy(parent -> children, original_parent_keys, (inter_key_idx + 1) * sizeof(struct tree_node));
+    memcpy(parent -> children, original_parent_children, (inter_key_idx + 1) * sizeof(struct tree_node));
     memcpy((parent -> children) + inter_key_idx,
             original_parent_children + inter_key_idx + 2,
             ((parent -> num_keys) - inter_key_idx - 1) * sizeof(struct tree_node));
