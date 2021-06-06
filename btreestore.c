@@ -553,7 +553,11 @@ void swap_key(struct tree_node * node1, int key_index1, struct tree_node * node2
 
 void delete_key_from_leaf_node(struct tree_node * node, int key_index) {
     struct kv_pair * original_key = node -> pairs;
-    node -> pairs = malloc((node -> num_keys - 1) * sizeof(struct kv_pair));
+    if ((node -> num_keys - 1) != 0) {
+        node -> pairs = malloc((node -> num_keys - 1) * sizeof(struct kv_pair));
+    } else {
+        node -> pairs = NULL; // edited
+    }
     for (int i = 0; i < key_index; i++) {
         memcpy((node -> pairs) + i, (original_key + i), sizeof(struct kv_pair));
     }
@@ -917,7 +921,7 @@ int btree_delete(uint32_t key, void * helper) {
             return 0;
         } else {
             if (leaf_node -> parent == NULL) {
-                fprintf(stderr, "h\n");
+                return 0;
             }
             int parent_num_keys = leaf_node -> parent -> num_keys;
             //fprintf(stderr, "parent num1: %d\n", parent_num_keys);
