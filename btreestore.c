@@ -916,6 +916,9 @@ int btree_delete(uint32_t key, void * helper) {
             sem_post(w_sem);
             return 0;
         } else {
+            if (leaf_node -> parent == NULL) {
+                fprintf(stderr, "h\n");
+            }
             int parent_num_keys = leaf_node -> parent -> num_keys;
             //fprintf(stderr, "parent num1: %d\n", parent_num_keys);
             struct tree_node * p_children = leaf_node -> parent -> children;
