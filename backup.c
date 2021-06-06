@@ -4,7 +4,6 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <pthread.h>
-#include <semaphore.h>
 
 struct kv_pair {
     uint32_t key;
@@ -19,6 +18,9 @@ struct tree_node {
     struct kv_pair * pairs;
     struct tree_node * parent;
     struct tree_node * children;
+    pthread_mutex_t r_lock;
+    pthread_mutex_t w_lock;
+    int reading;
     //char is_leaf;
 };
 
@@ -26,23 +28,18 @@ struct tree_node {
 void * init_store(uint16_t branching, uint8_t n_processors) {
     //fprintf(stderr, "branch: %d\n", branching);
     // Your code here
-    struct tree_node * root = malloc(sizeof(struct tree_node) + 
-                                    3 * sizeof(uint16_t) + 
-                                    sizeof(pthread_mutex_t) + 
-                                    sizeof(sem_t));
+    struct tree_node * root = malloc(sizeof(struct tree_node) + 2 * sizeof(uint16_t) );
     root -> num_keys = 0;
     root -> pairs = NULL;
     root -> parent = NULL;
     root -> children = NULL;
+    pthread_mutex_init(&(root -> r_lock), NULL);
+    pthread_mutex_init(&(root -> w_lock), NULL);
+    root -> reading = 0;
     uint16_t * info = (uint16_t *) (root + 1);
     *info = branching;
     *(info + 1) = n_processors;
-    *(info + 2) = 0;
     //root -> is_leaf = 1;
-    pthread_mutex_t * muteces = (pthread_mutex_t *) (info + 3);
-    pthread_mutex_init(muteces, NULL); //read
-    sem_t * w_sem = (sem_t *) (muteces + 1);
-    sem_init(w_sem, 0, 1);
     return (void *) root;
 }
 
@@ -84,11 +81,6 @@ void close_store(void * helper) {
     //fprintf(stderr, "the right left %d\n", (root -> children + 1) -> children -> pairs -> key);
     //fprintf(stderr, "the right right %d\n", ((root -> children + 1)-> children +1) -> pairs -> key);
     post_order_clean(root);
-    uint16_t * info = (uint16_t *) (root + 1);
-    pthread_mutex_t * muteces = (pthread_mutex_t *) (info + 3);
-    sem_t * w_sem = (sem_t *) (muteces + 1);
-    pthread_mutex_destroy(muteces);
-    sem_destroy(w_sem);
     free(helper);
     return;
 }
@@ -107,9 +99,6 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
     uint16_t n_processors = *(info + 1);
     //printf("branch: %d\n", branching);
     //fprintf(stderr, "branching: %d\n", branching);
-    pthread_mutex_t * muteces = (pthread_mutex_t *) (info + 3);
-    sem_t * w_sem = (sem_t *) (muteces + 1);
-    sem_wait(w_sem);
 
     while (root -> children != NULL) {
         int count = 0;
@@ -121,7 +110,6 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
             }
             if (curr_key == key) {
                 //fprintf(stderr, "same!\n");
-                sem_post(w_sem);
                 return 1;
             }
             count ++;
@@ -137,7 +125,6 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         }
         if (curr_key == key) {
             //fprintf(stderr, "same!\n");
-            sem_post(w_sem);
             return 1;
         }
         leaf_count ++;
@@ -178,7 +165,6 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
     root -> num_keys ++;
     //fprintf(stderr, "root nk ++: %p\n", root -> num_keys);
     if (root -> num_keys <= branching - 1) {
-        sem_post(w_sem);
         return 0;
     }
     //fprintf(stderr, "exceeded!, root -> parent: %p\n");
@@ -346,7 +332,6 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
 
         root -> num_keys = 1;        
     }
-    sem_post(w_sem);
     return 0;
 }
 
@@ -355,17 +340,7 @@ int btree_retrieve(uint32_t key, struct info * found, void * helper) {
     uint16_t * info = (uint16_t *) (root + 1);
     uint16_t branching = *info;
     uint16_t n_processors = *(info + 1);
-    uint16_t * reading = info + 2;
-    pthread_mutex_t * muteces = (pthread_mutex_t *) (info + 3);
-    pthread_mutex_t * r_lock = muteces;
-    sem_t * w_sem = (sem_t *) (muteces + 1);
 
-    pthread_mutex_lock(r_lock);
-    (*reading) ++;
-    if (*reading == 1) {
-        sem_wait(w_sem);
-    }
-    pthread_mutex_unlock(r_lock);
     while (root -> children != NULL) {
             int count = 0;
             while (count < (root -> num_keys)) {
@@ -381,12 +356,6 @@ int btree_retrieve(uint32_t key, struct info * found, void * helper) {
                     4 * sizeof(uint32_t));
                     found -> nonce = ((root -> pairs) + count) -> nonce;
                     found -> size = ((root -> pairs) + count) -> size;
-                    pthread_mutex_lock(r_lock);
-                    (*reading) --;
-                    if (*reading == 0) {
-                        sem_post(w_sem);
-                    }
-                    pthread_mutex_unlock(r_lock);
                     return 0;
                 }
                 count ++;
@@ -407,22 +376,11 @@ int btree_retrieve(uint32_t key, struct info * found, void * helper) {
             4 * sizeof(uint32_t));
             found -> nonce = ((root -> pairs) + leaf_count) -> nonce;
             found -> size = ((root -> pairs) + leaf_count) -> size;
-            pthread_mutex_lock(r_lock);
-            (*reading) --;
-            if (*reading == 0) {
-                sem_post(w_sem);
-            }
-            pthread_mutex_unlock(r_lock);
             return 0;
         }
         leaf_count ++;
     }
-    pthread_mutex_lock(r_lock);
-    (*reading) --;
-    if (*reading == 0) {
-        sem_post(w_sem);
-    }
-    pthread_mutex_unlock(r_lock);
+
     return 1;
 }
 
@@ -431,52 +389,62 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
     uint16_t * info = (uint16_t *) (root + 1);
     uint16_t branching = *info;
     uint16_t n_processors = *(info + 1);
-    uint16_t * reading = info + 2;
-    pthread_mutex_t * muteces = (pthread_mutex_t *) (info + 3);
-    pthread_mutex_t * r_lock = muteces;
-    sem_t * w_sem = (sem_t *) (muteces + 1);
 
-    pthread_mutex_lock(r_lock);
-    (*reading) ++;
-    if (*reading == 1) {
-        sem_wait(w_sem);
+    pthread_mutex_lock(&(root -> r_lock));
+    (root -> reading) ++;
+    if ((root -> reading) == 1) {
+        pthread_mutex_lock(&(root -> w_lock));
     }
-    pthread_mutex_unlock(r_lock);
+    pthread_mutex_unlock(&(root -> r_lock));
     while (root -> children != NULL) {
-            int count = 0;
-            while (count < (root -> num_keys)) {
-                //fprintf(stderr, "numkey!!: %d\n", root -> num_keys);
-                uint32_t curr_key = ((root -> pairs) + count) -> key;
-                if (curr_key > key) {
-                    break;
-                }
-                if (curr_key == key) {
-                    int num_bytes = ((root -> pairs) + count) -> size;
-                    int num_blocks;
-                    if (num_bytes % 8 == 0) {
-                        num_blocks = num_bytes/8;
-                    } else {
-                        num_blocks = num_bytes/8 + 1;
-                    }
-                    uint64_t * plain = malloc(num_blocks * 8);
-                    decrypt_tea_ctr(((root -> pairs) + count) -> data
-                    , ((root -> pairs) + count) -> encryption_key,
-                    ((root -> pairs) + count) -> nonce, plain, num_blocks);
-                    memcpy(output, plain, ((root -> pairs) + count) -> size);
-                    free(plain);
-                    pthread_mutex_lock(r_lock);
-                    (*reading) --;
-                    if (*reading == 0) {
-                        sem_post(w_sem);
-                    }
-                    pthread_mutex_unlock(r_lock);
-                    return 0;
-                }
-                count ++;
+        int count = 0;
+        while (count < (root -> num_keys)) {
+            //fprintf(stderr, "numkey!!: %d\n", root -> num_keys);
+            uint32_t curr_key = ((root -> pairs) + count) -> key;
+            if (curr_key > key) {
+                break;
             }
-            //fprintf(stderr, "changed root\n");
-            root = (root -> children) + count;
+            if (curr_key == key) {
+                int num_bytes = ((root -> pairs) + count) -> size;
+                int num_blocks;
+                if (num_bytes % 8 == 0) {
+                    num_blocks = num_bytes/8;
+                } else {
+                    num_blocks = num_bytes/8 + 1;
+                }
+                uint64_t * plain = malloc(num_blocks * 8);
+                decrypt_tea_ctr(((root -> pairs) + count) -> data
+                , ((root -> pairs) + count) -> encryption_key,
+                ((root -> pairs) + count) -> nonce, plain, num_blocks);
+                memcpy(output, plain, ((root -> pairs) + count) -> size);
+                free(plain);
+                pthread_mutex_lock(&(root -> r_lock));
+                (root -> reading) --;
+                if ((root -> reading) == 0) {
+                    pthread_mutex_unlock(&(root -> w_lock));
+                }
+                pthread_mutex_unlock(&(root -> r_lock));
+                return 0;
+            }
+            count ++;
         }
+        //fprintf(stderr, "changed root\n");
+        struct tree_node * old_root = root;
+        root = (root -> children) + count;
+        pthread_mutex_lock(&(root -> r_lock));
+        (root -> reading) ++;
+        if ((root -> reading) == 1) {
+            pthread_mutex_lock(&(root -> w_lock));
+        }
+        pthread_mutex_unlock(&(root -> r_lock));
+
+        pthread_mutex_lock(&(old_root -> r_lock));
+        (old_root -> reading) --;
+        if ((old_root -> reading) == 0) {
+            pthread_mutex_unlock(&(old_root -> w_lock));
+        }
+        pthread_mutex_unlock(&(old_root -> r_lock));
+    }
     int leaf_count = 0;
     while (leaf_count < (root -> num_keys)) {
         uint32_t curr_key = ((root -> pairs) + leaf_count) -> key;
@@ -497,22 +465,22 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
                 ((root -> pairs) + leaf_count) -> nonce, plain, num_blocks);
                 memcpy(output, plain, ((root -> pairs) + leaf_count) -> size);
                 free(plain);
-                pthread_mutex_lock(r_lock);
-                (*reading) --;
-                if (*reading == 0) {
-                    sem_post(w_sem);
+                pthread_mutex_lock(&(root -> r_lock));
+                (root -> reading) --;
+                if ((root -> reading) == 0) {
+                    pthread_mutex_unlock(&(root -> w_lock));
                 }
-                pthread_mutex_unlock(r_lock);
+                pthread_mutex_unlock(&(root -> r_lock));
                 return 0;
         }
         leaf_count ++;
     }
-    pthread_mutex_lock(r_lock);
-    (*reading) --;
-    if (*reading == 0) {
-        sem_post(w_sem);
+    pthread_mutex_lock(&(root -> r_lock));
+    ((root) -> reading) --;
+    if ((root -> reading) == 0) {
+        pthread_mutex_unlock(&(root -> w_lock));
     }
-    pthread_mutex_unlock(r_lock);
+    pthread_mutex_unlock(&(root -> r_lock));  
     return 1;
 }
 
@@ -821,10 +789,6 @@ int btree_delete(uint32_t key, void * helper) {
     uint16_t branching = *info;
     //fprintf(stderr, "branching: %d\n", branching);
     uint16_t n_processors = *(info + 1);
-    pthread_mutex_t * muteces = (pthread_mutex_t *) (info + 3);
-    sem_t * w_sem = (sem_t *) (muteces + 1);
-    sem_wait(w_sem);
-
     int lower_bound = (branching)/2 + ((branching)%2 != 0);
     int found = 0;
     struct tree_node * leaf_node;
@@ -885,7 +849,6 @@ int btree_delete(uint32_t key, void * helper) {
         //fprintf(stderr, "actual father: %p\n", parent);
         delete_key_from_leaf_node(leaf_node, leaf_key_index);
         if (leaf_node -> num_keys + 1 >= lower_bound) {
-            sem_post(w_sem);
             return 0;
         } else {
             int parent_num_keys = leaf_node -> parent -> num_keys;
@@ -914,7 +877,6 @@ int btree_delete(uint32_t key, void * helper) {
                     );
                     memcpy((leaf_node -> parent -> pairs) + child_index, min, sizeof(struct kv_pair));
                     free(min);
-                    sem_post(w_sem);
                     return 0;
                 }
             } else if (child_index == parent_num_keys) {
@@ -932,7 +894,6 @@ int btree_delete(uint32_t key, void * helper) {
                     // replace
                     memcpy((leaf_node -> parent -> pairs) + child_index - 1, max, sizeof(struct kv_pair)); // edited leaf_node -> parent
                     free(max);
-                    sem_post(w_sem);
                     return 0;
                 }
             } else {
@@ -954,7 +915,6 @@ int btree_delete(uint32_t key, void * helper) {
                     //remember to free max
                     memcpy((leaf_node -> parent -> pairs) + child_index - 1, max, sizeof(struct kv_pair));
                     free(max);
-                    sem_post(w_sem);
                     return 0;
                 }
                 if (!suitable) {
@@ -972,7 +932,6 @@ int btree_delete(uint32_t key, void * helper) {
                         //remember to free min
                         memcpy((leaf_node -> parent -> pairs) + child_index, min, sizeof(struct kv_pair));
                         free(min);
-                        sem_post(w_sem);
                         return 0;
                     }
                 }
@@ -1012,7 +971,6 @@ int btree_delete(uint32_t key, void * helper) {
                         memcpy((p_parent ->pairs) + pc_index, min, sizeof(struct kv_pair));
                         free(min);
                         move_c_from_right_to_left(pp_children, pp_children + 1);
-                        sem_post(w_sem);
                         return 0;
                     }
 
@@ -1028,7 +986,6 @@ int btree_delete(uint32_t key, void * helper) {
                         memcpy((p_parent -> pairs) + pc_index - 1, max, sizeof(struct kv_pair));
                         free(max);
                         move_c_from_left_to_right(pp_children + pc_index - 1, pp_children + pc_index);
-                        sem_post(w_sem);
                         return 0;
                     }
 
@@ -1046,7 +1003,6 @@ int btree_delete(uint32_t key, void * helper) {
                         memcpy((p_parent -> pairs) + pc_index - 1, max, sizeof(struct kv_pair));
                         free(max);
                         move_c_from_left_to_right(pp_children + pc_index - 1, pp_children + pc_index);
-                        sem_post(w_sem);
                         return 0;
                     } 
                     if (!suitable) {
@@ -1061,7 +1017,6 @@ int btree_delete(uint32_t key, void * helper) {
                             memcpy((p_parent -> pairs) + pc_index, min, sizeof(struct kv_pair));
                             free(min);
                             move_c_from_right_to_left(pp_children + pc_index, pp_children + pc_index + 1);
-                            sem_post(w_sem);
                             return 0;
                         }
                     }
@@ -1089,18 +1044,14 @@ int btree_delete(uint32_t key, void * helper) {
                         (root -> children + i) -> parent = root;
                     }
                 }
-                sem_post(w_sem);
                 return 0;
             }
-            sem_post(w_sem);
             return 0;
         }
         ///////////////////////////////////////////////////////////////////////////
     } else {
-        sem_post(w_sem);
         return 1;
     }
-    sem_post(w_sem);
     return 1;
 }
 
@@ -1132,31 +1083,11 @@ int pre_order(struct tree_node * root, int count, struct node ** ls) {
 } 
 
 uint64_t btree_export(void * helper, struct node ** list) {
-    struct tree_node * root = helper;
-    uint16_t * info = (uint16_t *) (root + 1);
-    uint16_t * reading = info + 2;
-    pthread_mutex_t * muteces = (pthread_mutex_t *) (info + 3);
-    pthread_mutex_t * r_lock = muteces;
-    sem_t * w_sem = (sem_t *) (muteces + 1);
-
-    pthread_mutex_lock(r_lock);
-    (*reading) ++;
-    if (*reading == 1) {
-        sem_wait(w_sem);
-    }
-    pthread_mutex_unlock(r_lock);
+    
     int count = 0;
+    struct tree_node * root = helper;
     *list = NULL;
-    int result = pre_order(root, count, list);
-
-    pthread_mutex_lock(r_lock);
-    (*reading) --;
-    if (*reading == 0) {
-        sem_post(w_sem);
-    }
-    pthread_mutex_unlock(r_lock);
-
-    return result;
+    return pre_order(root, count, list);
 }
 
 void encrypt_tea(uint32_t plain[2], uint32_t cipher[2], uint32_t key[4]) {
