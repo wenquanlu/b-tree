@@ -242,7 +242,12 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         ////////
         if (right_node -> children != NULL) {
             for (int i = 0; i <= right_node -> num_keys; i++) {
-                (right_node -> children + i) -> parent = right_node;
+                struct tree_node * child = right_node -> children + i;
+                if (child -> children != NULL) {
+                    for (int i = 0 ; i <= child -> num_keys; i++) {
+                        (child -> children + i) -> parent = child;
+                    }
+                }
             }
         }
         ////////    
@@ -260,7 +265,12 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         //////
         if (left_node -> children != NULL) {
             for (int i = 0; i <= left_node -> num_keys; i++) {
-                (left_node -> children + i) -> parent = left_node;
+                struct tree_node * child = left_node -> children + i;
+                if (child -> children != NULL) {
+                    for (int i = 0; i <= child -> num_keys; i++) {
+                        (child -> children + i) -> parent = child;
+                    }
+                }
             }
         }
         ///////
@@ -271,8 +281,16 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         }*/
         free(original_kv_ptr);
         //free(root);
-        parent -> num_keys += 1;
+        (parent -> num_keys) += 1;
         //fprintf(stderr, "now print parent: %p\n", parent -> num_keys);
+        for (int i = 0; i <= parent -> num_keys; i++) {
+            struct tree_node * child = (parent -> children) + i;
+            if (child -> children != NULL) {
+                for (int i = 0; i <= child -> num_keys; i++) {
+                    (child -> children + i) -> parent = child;
+                }
+            }
+        }
         root = parent;
     }
     //fprintf(stderr, "should come here\n");
@@ -292,25 +310,29 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         struct tree_node * right_node = (root -> children) + 1;
 
         right_node -> num_keys = num_key_right;
-        //fprintf(stderr, "num key right: %d\n", num_key_right);
+
         right_node -> children = malloc(sizeof(struct tree_node) * (num_key_right + 1));
         right_node -> pairs = malloc(sizeof(struct kv_pair) * (num_key_right));
-        //fprintf(stderr, "malloced pointer %p\n", right_node -> children);
-        //fprintf(stderr, "orginal child ptr: %p\n", original_child_ptr);
+
         if (original_child_ptr != NULL) {
             memcpy(right_node -> children, original_child_ptr + midindex + 1, sizeof(struct tree_node) * (num_key_right + 1));
         } else {
             free(right_node -> children);
             right_node -> children = NULL;
         }
-        //fprintf(stderr, "original kv pointer: %p\n", original_kv_ptr);
-        //fprintf(stderr, "right node pairs: %p\n", right_node -> pairs);
+
         memcpy(right_node -> pairs, original_kv_ptr + midindex + 1, num_key_right * sizeof(struct kv_pair));
         right_node -> parent = root;
         ///////
         if (right_node -> children != NULL) {
             for (int i = 0; i <= right_node -> num_keys; i++) {
                 (right_node -> children + i) -> parent = right_node;
+                struct tree_node * child = right_node -> children + i;
+                if (child -> children != NULL) {
+                    for (int i = 0; i <= child -> num_keys; i++) {
+                        (child -> children + i) -> parent = child;
+                    } 
+                }
             }
         }
         ///////
@@ -333,6 +355,12 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         if (left_node -> children != NULL) {
             for (int i = 0; i <= left_node -> num_keys; i++) {
                 (left_node -> children + i) -> parent = left_node;
+                struct tree_node * child = left_node -> children + i;
+                if (child -> children != NULL) {
+                    for (int i = 0; i <= child -> num_keys; i++) {
+                        (child -> children + i) -> parent = child;
+                    }
+                }
             }
         }
         ////////
