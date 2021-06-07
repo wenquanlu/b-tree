@@ -85,8 +85,11 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
 
     pthread_mutex_t * muteces = (pthread_mutex_t *) (info + 3);
     sem_t * w_sem = (sem_t *) (muteces + 1);
+    if (key %3 == 0) {
+        fprintf(stderr, "ptr: %p\n", w_sem);
+    }
     sem_wait(w_sem);
-    fprintf(stderr, "ptr: %p\n", w_sem);
+
     while (root -> children != NULL) {
         int count = 0;
         while (count < (root -> num_keys)) {
