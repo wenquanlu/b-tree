@@ -340,7 +340,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
 }
 
 int btree_retrieve(uint32_t key, struct info * found, void * helper) {
-    fprintf(stdrr, "retrieved!\n");
+    fprintf(stderr, "retrieved!\n");
     struct tree_node * root = helper;
     uint16_t * info = (uint16_t *) (root + 1);
     uint16_t branching = *info;
