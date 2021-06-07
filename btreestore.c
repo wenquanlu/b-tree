@@ -70,7 +70,7 @@ void close_store(void * helper) {
     pthread_mutex_t * muteces = (pthread_mutex_t *) (info + 3);
     sem_t * w_sem = (sem_t *) (muteces + 1);
     pthread_mutex_destroy(muteces);
-    sem_destroy(w_sem); 
+    sem_destroy(w_sem);
     free(helper);
     return;
 }
@@ -783,7 +783,7 @@ void move_c_from_left_to_right(struct tree_node * left_node, struct tree_node * 
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int btree_delete(uint32_t key, void * helper) {
-    //fprintf(stderr, "key:: %d\n", key);
+    fprintf(stderr, "key:: %d\n", key);
     struct tree_node * root = helper;
     uint16_t * info = (uint16_t *) (root + 1);
     uint16_t branching = *info;
