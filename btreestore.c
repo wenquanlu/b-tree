@@ -428,9 +428,6 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
     if (*reading == 1) {
         sem_wait(w_sem);
     }
-    if (*reading == 2) {
-        fprintf(stderr, "again!\n");
-    }
     sem_post(r_sem);
     while (root -> children != NULL) {
             int count = 0;
