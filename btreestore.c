@@ -460,7 +460,7 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
                         sem_post(w_sem);
                     }
                     pthread_mutex_unlock(r_lock);
-                    fprintf(stderr, "der\n");
+                    fprintf(stderr, "der");
                     return 0;
                 }
                 count ++;
@@ -494,7 +494,7 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
                     sem_post(w_sem);
                 }
                 pthread_mutex_unlock(r_lock);
-                fprintf(stderr, "der\n");
+                fprintf(stderr, "der");
                 return 0;
         }
         leaf_count ++;
@@ -505,7 +505,7 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
         sem_post(w_sem);
     }
     pthread_mutex_unlock(r_lock);
-    fprintf(stderr, "der\n");
+    fprintf(stderr, "der");
     return 1;
 }
 
