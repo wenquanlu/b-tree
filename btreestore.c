@@ -88,8 +88,8 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
     pthread_mutex_t * muteces = (pthread_mutex_t *) (info + 3);
     sem_t * w_sem = (sem_t *) (muteces + 1);
     x++;
-    if (x == 20000) {
-        fprintf(stderr, "20000!\n");
+    if (x == 50000) {
+        fprintf(stderr, "50000!\n");
     }
     sem_wait(w_sem);
 
