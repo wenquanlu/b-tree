@@ -416,7 +416,6 @@ int btree_retrieve(uint32_t key, struct info * found, void * helper) {
 }
 
 int btree_decrypt(uint32_t key, void * output, void * helper) {
-    fprintf(stderr, "de\n");
     struct tree_node * root = helper;
     uint16_t * info = (uint16_t *) (root + 1);
     uint16_t branching = *info;
@@ -460,7 +459,6 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
                         sem_post(w_sem);
                     }
                     pthread_mutex_unlock(r_lock);
-                    fprintf(stderr, "der");
                     return 0;
                 }
                 count ++;
@@ -494,7 +492,6 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
                     sem_post(w_sem);
                 }
                 pthread_mutex_unlock(r_lock);
-                fprintf(stderr, "der");
                 return 0;
         }
         leaf_count ++;
@@ -505,7 +502,6 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
         sem_post(w_sem);
     }
     pthread_mutex_unlock(r_lock);
-    fprintf(stderr, "der");
     return 1;
 }
 
