@@ -783,7 +783,7 @@ void move_c_from_left_to_right(struct tree_node * left_node, struct tree_node * 
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int btree_delete(uint32_t key, void * helper) {
-    fprintf(stderr, "key:: %d\n", key);
+    //fprintf(stderr, "key:: %d\n", key);
     struct tree_node * root = helper;
     uint16_t * info = (uint16_t *) (root + 1);
     uint16_t branching = *info;
