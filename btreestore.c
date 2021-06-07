@@ -67,7 +67,7 @@ void close_store(void * helper) {
     struct tree_node * root = helper;
     post_order_clean(root);
     uint16_t * info = (uint16_t *) (root + 1);
-    sem_t * r_sem = (sem_t *) (info + 2);
+    sem_t * r_sem = (sem_t *) (info + 3);
     sem_t * w_sem = (r_sem + 1);
     sem_destroy(r_sem);
     sem_destroy(w_sem);
@@ -82,7 +82,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
     uint16_t * info = (uint16_t *) (root + 1);
     uint16_t branching = *info;
     uint16_t n_processors = *(info + 1);
-    
+
     sem_t * r_sem = (sem_t *) (info + 3);
     sem_t * w_sem = (r_sem + 1);
     sem_wait(w_sem);
