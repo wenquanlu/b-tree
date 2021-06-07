@@ -1093,6 +1093,7 @@ int pre_order(struct tree_node * root, int count, struct node ** ls) {
 } 
 
 uint64_t btree_export(void * helper, struct node ** list) {
+    fprintf(stderr, "ex!\n");
     struct tree_node * root = helper;
     uint16_t * info = (uint16_t *) (root + 1);
     uint16_t * reading = info + 2;
