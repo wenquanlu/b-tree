@@ -89,7 +89,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
     sem_t * w_sem = (sem_t *) (muteces + 1);
     x++;
     if (x > 29970) {
-        fprintf(stderr, "%d\n", *reading);
+        //fprintf(stderr, "%d\n", *reading);
         fprintf(stderr, "%d!\n", x );
     }
     sem_wait(w_sem);
@@ -105,6 +105,10 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
             if (curr_key == key) {
 
                 sem_post(w_sem);
+                if (x > 29970) {
+                //fprintf(stderr, "%d\n", *reading);
+                    fprintf(stderr, "end %d!\n", x );
+                }
                 return 1;
             }
             count ++;
@@ -121,6 +125,10 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         if (curr_key == key) {
 
             sem_post(w_sem);
+            if (x > 29970) {
+            //fprintf(stderr, "%d\n", *reading);
+                fprintf(stderr, "end %d!\n", x );
+            }
             return 1;
         }
         leaf_count ++;
@@ -160,6 +168,10 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
 
     if (root -> num_keys <= branching - 1) {
         sem_post(w_sem);
+        if (x > 29970) {
+        //fprintf(stderr, "%d\n", *reading);
+            fprintf(stderr, "end %d!\n", x );
+        }
         return 0;
     }
 
@@ -343,6 +355,10 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         root -> num_keys = 1;        
     }
     sem_post(w_sem);
+    if (x > 29970) {
+        //fprintf(stderr, "%d\n", *reading);
+        fprintf(stderr, "end %d!\n", x );
+    }
     return 0;
 }
 
