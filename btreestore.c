@@ -70,7 +70,7 @@ void close_store(void * helper) {
     pthread_mutex_t * muteces = (pthread_mutex_t *) (info + 3);
     sem_t * w_sem = (sem_t *) (muteces + 1);
     pthread_mutex_destroy(muteces);
-    sem_destroy(w_sem);
+    sem_destroy(w_sem); 
     free(helper);
     return;
 }
