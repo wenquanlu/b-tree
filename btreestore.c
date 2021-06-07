@@ -6,6 +6,8 @@
 #include <pthread.h>
 #include <semaphore.h>
 
+static int x = 0;
+
 struct kv_pair {
     uint32_t key;
     uint32_t size;
@@ -85,8 +87,9 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
 
     pthread_mutex_t * muteces = (pthread_mutex_t *) (info + 3);
     sem_t * w_sem = (sem_t *) (muteces + 1);
-    if (key %257 == 0) {
-        fprintf(stderr, "ptr: %p\n", w_sem);
+    x++;
+    if (x == 10000) {
+        fprintf(stderr, "10000!\n");
     }
     sem_wait(w_sem);
 
