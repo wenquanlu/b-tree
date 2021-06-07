@@ -424,7 +424,7 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
     pthread_mutex_t * muteces = (pthread_mutex_t *) (info + 3);
     pthread_mutex_t * r_lock = muteces;
     sem_t * w_sem = (sem_t *) (muteces + 1);
-
+    fprintf(stderr, "ptr: %p\n", w_sem);
     pthread_mutex_lock(r_lock);
     (*reading) ++;
     if (*reading == 1) {
