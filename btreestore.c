@@ -453,7 +453,7 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
         sem_wait(w_sem);
     }
     if (*reading == 2) {
-        fprintf(stderr, "pray to god, %d\n", *reading); 
+        fprintf(stderr, "pray to god, %d\n", *reading);
     }
     pthread_mutex_unlock(r_lock);
     while (root -> children != NULL) {
