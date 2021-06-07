@@ -64,6 +64,7 @@ void post_order_clean(struct tree_node * root) {
 }
 
 void close_store(void * helper) {
+    fprintf(stderr, "close!\n");
     struct tree_node * root = helper;
     post_order_clean(root);
     uint16_t * info = (uint16_t *) (root + 1);
