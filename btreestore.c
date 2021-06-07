@@ -26,7 +26,7 @@ struct tree_node {
 void * init_store(uint16_t branching, uint8_t n_processors) {
     struct tree_node * root = malloc(sizeof(struct tree_node) + 
                                     2 * sizeof(uint16_t) + 
-                                    sizeof(pthread_rwlock_t))
+                                    sizeof(pthread_rwlock_t));
     root -> num_keys = 0;
     root -> pairs = NULL;
     root -> parent = NULL;
@@ -415,11 +415,6 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
                     ((root -> pairs) + count) -> nonce, plain, num_blocks);
                     memcpy(output, plain, ((root -> pairs) + count) -> size);
                     free(plain);
-                    pthread_mutex_lock(r_lock);
-                    (*reading) --;
-                    if (*reading == 0) {
-                        sem_post(w_sem);
-                    }
                     pthread_rwlock_unlock(rw_lock);
                     return 0;
                 }
@@ -448,20 +443,10 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
                 ((root -> pairs) + leaf_count) -> nonce, plain, num_blocks);
                 memcpy(output, plain, ((root -> pairs) + leaf_count) -> size);
                 free(plain);
-                pthread_mutex_lock(r_lock);
-                (*reading) --;
-                if (*reading == 0) {
-                    sem_post(w_sem);
-                }
                 pthread_rwlock_unlock(rw_lock);
                 return 0;
         }
         leaf_count ++;
-    }
-    pthread_mutex_lock(r_lock);
-    (*reading) --;
-    if (*reading == 0) {
-        sem_post(w_sem);
     }
     pthread_rwlock_unlock(rw_lock);
     return 1;
