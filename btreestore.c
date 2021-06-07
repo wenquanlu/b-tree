@@ -70,13 +70,9 @@ void close_store(void * helper) {
     pthread_mutex_t * muteces = (pthread_mutex_t *) (info + 3);
     sem_t * w_sem = (sem_t *) (muteces + 1);
     pthread_mutex_destroy(muteces);
-    //sem_destroy(w_sem);
+    sem_destroy(w_sem);
     free(helper);
     return;
-}
-
-void insert_key_into_node(uint32_t key, struct tree_node node, int position) {
-
 }
 
 int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encryption_key[4], uint64_t nonce, void * helper) {
@@ -857,6 +853,7 @@ int btree_delete(uint32_t key, void * helper) {
             return 0;
         } else {
             if (leaf_node -> parent == NULL) {
+                sem_post(w_sem);
                 return 0; // edited
             }
             int parent_num_keys = leaf_node -> parent -> num_keys;
