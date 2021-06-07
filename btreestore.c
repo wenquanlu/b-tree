@@ -420,7 +420,18 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
     uint16_t branching = *info;
     uint16_t n_processors = *(info + 1);
     uint16_t * reading = info + 2;
+    sem_t * r_sem = (sem_t *) (info + 3);
+    sem_t * w_sem = (r_sem + 1);
 
+    sem_wait(r_sem);
+    (*reading) ++;
+    if (*reading == 1) {
+        sem_wait(w_sem);
+    }
+    if (*reading == 2) {
+        fprintf(stderr, "again!\n");
+    }
+    sem_post(r_sem);
     while (root -> children != NULL) {
             int count = 0;
             while (count < (root -> num_keys)) {
@@ -443,6 +454,12 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
                     ((root -> pairs) + count) -> nonce, plain, num_blocks);
                     memcpy(output, plain, ((root -> pairs) + count) -> size);
                     free(plain);
+                    sem_wait(r_sem);
+                    (*reading) --;
+                    if (*reading == 0) {
+                        sem_post(w_sem);
+                    }
+                    sem_post(r_sem);
                     return 0;
                 }
                 count ++;
@@ -470,10 +487,22 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
                 ((root -> pairs) + leaf_count) -> nonce, plain, num_blocks);
                 memcpy(output, plain, ((root -> pairs) + leaf_count) -> size);
                 free(plain);
+                sem_wait(r_sem);
+                (*reading) --;
+                if (*reading == 0) {
+                    sem_post(w_sem);
+                }
+                sem_post(r_sem);
                 return 0;
         }
         leaf_count ++;
     }
+    sem_wait(r_sem);
+    (*reading) --;
+    if (*reading == 0) {
+        sem_post(w_sem);
+    }
+    sem_post(r_sem);
     return 1;
 }
 
