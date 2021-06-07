@@ -6,7 +6,6 @@
 #include <pthread.h>
 #include <semaphore.h>
 
-static int x = 0;
 
 struct kv_pair {
     uint32_t key;
@@ -87,11 +86,6 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
     uint16_t * reading = info + 2;
     pthread_mutex_t * muteces = (pthread_mutex_t *) (info + 3);
     sem_t * w_sem = (sem_t *) (muteces + 1);
-    x++;
-    if (x > 29950) {
-        //fprintf(stderr, "%d\n", *reading); 
-        fprintf(stderr, "%d! %d\n", x , *reading); 
-    }
     sem_wait(w_sem);
 
     while (root -> children != NULL) {
@@ -105,10 +99,6 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
             if (curr_key == key) {
 
                 sem_post(w_sem);
-                if (x > 29950) {
-                //fprintf(stderr, "%d\n", *reading);
-                    fprintf(stderr, "end %d!\n", x );
-                }
                 return 1;
             }
             count ++;
@@ -125,10 +115,6 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         if (curr_key == key) {
 
             sem_post(w_sem);
-            if (x > 29950) {
-            //fprintf(stderr, "%d\n", *reading);
-                fprintf(stderr, "end %d!\n", x );
-            }
             return 1;
         }
         leaf_count ++;
@@ -168,10 +154,6 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
 
     if (root -> num_keys <= branching - 1) {
         sem_post(w_sem);
-        if (x > 29950) {
-        //fprintf(stderr, "%d\n", *reading);
-            fprintf(stderr, "end %d!\n", x );
-        }
         return 0;
     }
 
@@ -355,10 +337,6 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         root -> num_keys = 1;        
     }
     sem_post(w_sem);
-    if (x > 29950) {
-        //fprintf(stderr, "%d\n", *reading);
-        fprintf(stderr, "end %d!\n", x );
-    }
     return 0;
 }
 
@@ -452,13 +430,7 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
     if (*reading == 1) {
         sem_wait(w_sem);
     }
-    if (*reading == 2) {
-        fprintf(stderr, "pray to god, %d %p %p\n", *reading, w_sem, r_lock); 
-    }
     pthread_mutex_unlock(r_lock);
-    if (*reading == 2) {
-        fprintf(stderr, "rlock: %p\n", r_lock);
-    }
     while (root -> children != NULL) {
             int count = 0;
             while (count < (root -> num_keys)) {
@@ -482,9 +454,6 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
                     memcpy(output, plain, ((root -> pairs) + count) -> size);
                     free(plain);
                     pthread_mutex_lock(r_lock);
-                    if (*reading == 2) {
-                        fprintf(stderr, "god bless\n");
-                    }
                     (*reading) --;
                     if (*reading == 0) {
                         sem_post(w_sem);
@@ -518,9 +487,6 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
                 memcpy(output, plain, ((root -> pairs) + leaf_count) -> size);
                 free(plain);
                 pthread_mutex_lock(r_lock);
-                if (*reading == 2) {
-                    fprintf(stderr, "god bless\n");
-                }
                 (*reading) --;
                 if (*reading == 0) {
                     sem_post(w_sem);
@@ -531,9 +497,6 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
         leaf_count ++;
     }
     pthread_mutex_lock(r_lock);
-    if (*reading == 2) {
-        fprintf(stderr, "god bless\n");
-    }
     (*reading) --;
     if (*reading == 0) {
         sem_post(w_sem);
