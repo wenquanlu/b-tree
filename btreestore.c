@@ -818,7 +818,7 @@ int btree_delete(uint32_t key, void * helper) {
             }
             count ++;
         }
-        //fprintf(stderr, "changed root\n");
+        //fprintf(stderr, "changed root\n"); 
         root = (root -> children) + count;
     }
     
