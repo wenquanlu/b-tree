@@ -479,6 +479,9 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
                     memcpy(output, plain, ((root -> pairs) + count) -> size);
                     free(plain);
                     pthread_mutex_lock(r_lock);
+                    if (*reading == 2) {
+                        fprintf(stderr, "god bless\n");
+                    }
                     (*reading) --;
                     if (*reading == 0) {
                         sem_post(w_sem);
@@ -512,6 +515,9 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
                 memcpy(output, plain, ((root -> pairs) + leaf_count) -> size);
                 free(plain);
                 pthread_mutex_lock(r_lock);
+                if (*reading == 2) {
+                    fprintf(stderr, "god bless\n");
+                }
                 (*reading) --;
                 if (*reading == 0) {
                     sem_post(w_sem);
@@ -522,6 +528,9 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
         leaf_count ++;
     }
     pthread_mutex_lock(r_lock);
+    if (*reading == 2) {
+        fprintf(stderr, "god bless\n");
+    }
     (*reading) --;
     if (*reading == 0) {
         sem_post(w_sem);
