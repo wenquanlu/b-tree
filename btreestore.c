@@ -90,7 +90,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
     x++;
     if (x == 29961) {
         fprintf(stderr, "%d\n", *reading);
-        fprintf(stderr, "29962!\n");
+        fprintf(stderr, "29963!\n");
     }
     sem_wait(w_sem);
 
