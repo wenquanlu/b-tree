@@ -84,11 +84,12 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
     uint16_t * info = (uint16_t *) (root + 1);
     uint16_t branching = *info;
     uint16_t n_processors = *(info + 1);
-
+    uint16_t reading = *(info + 2);
     pthread_mutex_t * muteces = (pthread_mutex_t *) (info + 3);
     sem_t * w_sem = (sem_t *) (muteces + 1);
     x++;
     if (x == 29961) {
+        fprintf(stderr, "%d\n", *reading);
         fprintf(stderr, "29961!\n");
     }
     sem_wait(w_sem);
