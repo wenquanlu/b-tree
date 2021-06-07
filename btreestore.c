@@ -456,6 +456,9 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
         fprintf(stderr, "pray to god, %d %p\n", *reading, w_sem ); 
     }
     pthread_mutex_unlock(r_lock);
+    if (*reading == 2) {
+        fprintf(stderr, "rlock: %p\n", r_lock);
+    }
     while (root -> children != NULL) {
             int count = 0;
             while (count < (root -> num_keys)) {
