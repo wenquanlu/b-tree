@@ -25,9 +25,8 @@ struct tree_node {
 
 void * init_store(uint16_t branching, uint8_t n_processors) {
     struct tree_node * root = malloc(sizeof(struct tree_node) + 
-                                    3 * sizeof(uint16_t) + 
-                                    sizeof(pthread_mutex_t) + 
-                                    sizeof(sem_t));
+                                    2 * sizeof(uint16_t) + 
+                                    sizeof(pthread_mutex_t));
     root -> num_keys = 0;
     root -> pairs = NULL;
     root -> parent = NULL;
@@ -35,11 +34,8 @@ void * init_store(uint16_t branching, uint8_t n_processors) {
     uint16_t * info = (uint16_t *) (root + 1);
     *info = branching;
     *(info + 1) = n_processors;
-    *(info + 2) = 0;
-    pthread_mutex_t * muteces = (pthread_mutex_t *) (info + 3);
+    pthread_mutex_t * muteces = (pthread_mutex_t *) (info + 2);
     pthread_mutex_init(muteces, NULL); //read
-    sem_t * w_sem = (sem_t *) (muteces + 1);
-    sem_init(w_sem, 0, 1);
     return (void *) root;
 }
 
@@ -68,10 +64,8 @@ void close_store(void * helper) {
     struct tree_node * root = helper;
     post_order_clean(root);
     uint16_t * info = (uint16_t *) (root + 1);
-    pthread_mutex_t * muteces = (pthread_mutex_t *) (info + 3);
-    sem_t * w_sem = (sem_t *) (muteces + 1);
+    pthread_mutex_t * muteces = (pthread_mutex_t *) (info + 2);
     pthread_mutex_destroy(muteces);
-    sem_destroy(w_sem);
     free(helper);
     return;
 }
@@ -83,11 +77,9 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
     uint16_t * info = (uint16_t *) (root + 1);
     uint16_t branching = *info;
     uint16_t n_processors = *(info + 1);
-    uint16_t * reading = info + 2;
-    pthread_mutex_t * muteces = (pthread_mutex_t *) (info + 3);
-    sem_t * w_sem = (sem_t *) (muteces + 1);
-    sem_wait(w_sem);
+    pthread_mutex_t * muteces = (pthread_mutex_t *) (info + 2);
 
+    pthread_mutex_lock(muteces);
     while (root -> children != NULL) {
         int count = 0;
         while (count < (root -> num_keys)) {
@@ -97,8 +89,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
                 break;
             }
             if (curr_key == key) {
-
-                sem_post(w_sem);
+                pthread_mutex_unlock(muteces);
                 return 1;
             }
             count ++;
@@ -113,8 +104,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
             break;
         }
         if (curr_key == key) {
-
-            sem_post(w_sem);
+            pthread_mutex_unlock(muteces);
             return 1;
         }
         leaf_count ++;
@@ -153,7 +143,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
     root -> num_keys ++;
 
     if (root -> num_keys <= branching - 1) {
-        sem_post(w_sem);
+        pthread_mutex_unlock(muteces);
         return 0;
     }
 
@@ -336,7 +326,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
 
         root -> num_keys = 1;        
     }
-    sem_post(w_sem);
+    pthread_mutex_unlock(muteces);
     return 0;
 }
 
@@ -345,17 +335,11 @@ int btree_retrieve(uint32_t key, struct info * found, void * helper) {
     uint16_t * info = (uint16_t *) (root + 1);
     uint16_t branching = *info;
     uint16_t n_processors = *(info + 1);
-    uint16_t * reading = info + 2;
-    pthread_mutex_t * muteces = (pthread_mutex_t *) (info + 3);
+    pthread_mutex_t * muteces = (pthread_mutex_t *) (info + 2);
     pthread_mutex_t * r_lock = muteces;
-    sem_t * w_sem = (sem_t *) (muteces + 1);
 
     pthread_mutex_lock(r_lock);
-    (*reading) ++;
-    if (*reading == 1) {
-        sem_wait(w_sem);
-    }
-    pthread_mutex_unlock(r_lock);
+
     while (root -> children != NULL) {
             int count = 0;
             while (count < (root -> num_keys)) {
@@ -371,11 +355,7 @@ int btree_retrieve(uint32_t key, struct info * found, void * helper) {
                     4 * sizeof(uint32_t));
                     found -> nonce = ((root -> pairs) + count) -> nonce;
                     found -> size = ((root -> pairs) + count) -> size;
-                    pthread_mutex_lock(r_lock);
-                    (*reading) --;
-                    if (*reading == 0) {
-                        sem_post(w_sem);
-                    }
+
                     pthread_mutex_unlock(r_lock);
                     return 0;
                 }
@@ -397,20 +377,11 @@ int btree_retrieve(uint32_t key, struct info * found, void * helper) {
             4 * sizeof(uint32_t));
             found -> nonce = ((root -> pairs) + leaf_count) -> nonce;
             found -> size = ((root -> pairs) + leaf_count) -> size;
-            pthread_mutex_lock(r_lock);
-            (*reading) --;
-            if (*reading == 0) {
-                sem_post(w_sem);
-            }
+
             pthread_mutex_unlock(r_lock);
             return 0;
         }
         leaf_count ++;
-    }
-    pthread_mutex_lock(r_lock);
-    (*reading) --;
-    if (*reading == 0) {
-        sem_post(w_sem);
     }
     pthread_mutex_unlock(r_lock);
     return 1;
@@ -421,16 +392,11 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
     uint16_t * info = (uint16_t *) (root + 1);
     uint16_t branching = *info;
     uint16_t n_processors = *(info + 1);
-    uint16_t * reading = info + 2;
-    pthread_mutex_t * muteces = (pthread_mutex_t *) (info + 3);
+    pthread_mutex_t * muteces = (pthread_mutex_t *) (info + 2);
     pthread_mutex_t * r_lock = muteces;
-    sem_t * w_sem = (sem_t *) (muteces + 1);
+
     pthread_mutex_lock(r_lock);
-    (*reading) ++;
-    if (*reading == 1) {
-        sem_wait(w_sem);
-    }
-    pthread_mutex_unlock(r_lock);
+
     while (root -> children != NULL) {
             int count = 0;
             while (count < (root -> num_keys)) {
@@ -453,11 +419,6 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
                     ((root -> pairs) + count) -> nonce, plain, num_blocks);
                     memcpy(output, plain, ((root -> pairs) + count) -> size);
                     free(plain);
-                    pthread_mutex_lock(r_lock);
-                    (*reading) --;
-                    if (*reading == 0) {
-                        sem_post(w_sem);
-                    }
                     pthread_mutex_unlock(r_lock);
                     return 0;
                 }
@@ -486,20 +447,10 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
                 ((root -> pairs) + leaf_count) -> nonce, plain, num_blocks);
                 memcpy(output, plain, ((root -> pairs) + leaf_count) -> size);
                 free(plain);
-                pthread_mutex_lock(r_lock);
-                (*reading) --;
-                if (*reading == 0) {
-                    sem_post(w_sem);
-                }
                 pthread_mutex_unlock(r_lock);
                 return 0;
         }
         leaf_count ++;
-    }
-    pthread_mutex_lock(r_lock);
-    (*reading) --;
-    if (*reading == 0) {
-        sem_post(w_sem);
     }
     pthread_mutex_unlock(r_lock);
     return 1;
@@ -789,10 +740,9 @@ int btree_delete(uint32_t key, void * helper) {
     uint16_t branching = *info;
     //fprintf(stderr, "branching: %d\n", branching);
     uint16_t n_processors = *(info + 1);
-    pthread_mutex_t * muteces = (pthread_mutex_t *) (info + 3);
-    sem_t * w_sem = (sem_t *) (muteces + 1);
-    sem_wait(w_sem);
+    pthread_mutex_t * muteces = (pthread_mutex_t *) (info + 2);
 
+    pthread_mutex_lock(muteces);
     int lower_bound = (branching)/2 + ((branching)%2 != 0);
     int found = 0;
     struct tree_node * leaf_node;
@@ -849,11 +799,11 @@ int btree_delete(uint32_t key, void * helper) {
         //fprintf(stderr, "actual father: %p\n", parent);
         delete_key_from_leaf_node(leaf_node, leaf_key_index);
         if (leaf_node -> num_keys + 1 >= lower_bound) {
-            sem_post(w_sem);
+            pthread_mutex_unlock(muteces);
             return 0;
         } else {
             if (leaf_node -> parent == NULL) {
-                sem_post(w_sem);
+                pthread_mutex_unlock(muteces);
                 return 0; // edited
             }
             int parent_num_keys = leaf_node -> parent -> num_keys;
@@ -882,7 +832,7 @@ int btree_delete(uint32_t key, void * helper) {
                     );
                     memcpy((leaf_node -> parent -> pairs) + child_index, min, sizeof(struct kv_pair));
                     free(min);
-                    sem_post(w_sem);
+                    pthread_mutex_unlock(muteces);
                     return 0;
                 }
             } else if (child_index == parent_num_keys) {
@@ -900,7 +850,7 @@ int btree_delete(uint32_t key, void * helper) {
                     // replace
                     memcpy((leaf_node -> parent -> pairs) + child_index - 1, max, sizeof(struct kv_pair)); // edited leaf_node -> parent
                     free(max);
-                    sem_post(w_sem);
+                    pthread_mutex_unlock(muteces);
                     return 0;
                 }
             } else {
@@ -920,7 +870,7 @@ int btree_delete(uint32_t key, void * helper) {
                     //remember to free max
                     memcpy((leaf_node -> parent -> pairs) + child_index - 1, max, sizeof(struct kv_pair));
                     free(max);
-                    sem_post(w_sem);
+                    pthread_mutex_unlock(muteces);
                     return 0;
                 }
                 if (!suitable) {
@@ -936,7 +886,7 @@ int btree_delete(uint32_t key, void * helper) {
                         //remember to free min
                         memcpy((leaf_node -> parent -> pairs) + child_index, min, sizeof(struct kv_pair));
                         free(min);
-                        sem_post(w_sem);
+                        pthread_mutex_unlock(muteces);
                         return 0;
                     }
                 }
@@ -976,7 +926,7 @@ int btree_delete(uint32_t key, void * helper) {
                         memcpy((p_parent ->pairs) + pc_index, min, sizeof(struct kv_pair));
                         free(min);
                         move_c_from_right_to_left(pp_children, pp_children + 1);
-                        sem_post(w_sem);
+                        pthread_mutex_unlock(muteces);
                         return 0;
                     }
 
@@ -992,7 +942,7 @@ int btree_delete(uint32_t key, void * helper) {
                         memcpy((p_parent -> pairs) + pc_index - 1, max, sizeof(struct kv_pair));
                         free(max);
                         move_c_from_left_to_right(pp_children + pc_index - 1, pp_children + pc_index);
-                        sem_post(w_sem);
+                        pthread_mutex_unlock(muteces);
                         return 0;
                     }
 
@@ -1010,7 +960,7 @@ int btree_delete(uint32_t key, void * helper) {
                         memcpy((p_parent -> pairs) + pc_index - 1, max, sizeof(struct kv_pair));
                         free(max);
                         move_c_from_left_to_right(pp_children + pc_index - 1, pp_children + pc_index);
-                        sem_post(w_sem);
+                        pthread_mutex_unlock(muteces);
                         return 0;
                     } 
                     if (!suitable) {
@@ -1025,7 +975,7 @@ int btree_delete(uint32_t key, void * helper) {
                             memcpy((p_parent -> pairs) + pc_index, min, sizeof(struct kv_pair));
                             free(min);
                             move_c_from_right_to_left(pp_children + pc_index, pp_children + pc_index + 1);
-                            sem_post(w_sem);
+                            pthread_mutex_unlock(muteces);
                             return 0;
                         }
                     }
@@ -1050,18 +1000,18 @@ int btree_delete(uint32_t key, void * helper) {
                         (root -> children + i) -> parent = root;
                     }
                 }
-                sem_post(w_sem);
+                pthread_mutex_unlock(muteces);
                 return 0;
             }
-            sem_post(w_sem);
+            pthread_mutex_unlock(muteces);
             return 0;
         }
         ///////////////////////////////////////////////////////////////////////////
     } else {
-        sem_post(w_sem);
+        pthread_mutex_unlock(muteces);
         return 1;
     }
-    sem_post(w_sem);
+    pthread_mutex_unlock(muteces);
     return 1;
 }
 
@@ -1095,26 +1045,15 @@ int pre_order(struct tree_node * root, int count, struct node ** ls) {
 uint64_t btree_export(void * helper, struct node ** list) {
     struct tree_node * root = helper;
     uint16_t * info = (uint16_t *) (root + 1);
-    uint16_t * reading = info + 2;
-    pthread_mutex_t * muteces = (pthread_mutex_t *) (info + 3);
+    pthread_mutex_t * muteces = (pthread_mutex_t *) (info + 2);
     pthread_mutex_t * r_lock = muteces;
-    sem_t * w_sem = (sem_t *) (muteces + 1);
 
     pthread_mutex_lock(r_lock);
-    (*reading) ++;
-    if (*reading == 1) {
-        sem_wait(w_sem);
-    }
-    pthread_mutex_unlock(r_lock);
+
     int count = 0;
     *list = NULL;
     int result = pre_order(root, count, list);
 
-    pthread_mutex_lock(r_lock);
-    (*reading) --;
-    if (*reading == 0) {
-        sem_post(w_sem);
-    }
     pthread_mutex_unlock(r_lock);
 
     return result;
