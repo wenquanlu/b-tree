@@ -65,7 +65,7 @@ void post_order_clean(struct tree_node * root) {
 }
 
 void close_store(void * helper) {
-    if (x > 250000) {
+    if (x > 25000) {
         fprintf(stderr, "I am not cheating\n");
     }
     struct tree_node * root = helper;
