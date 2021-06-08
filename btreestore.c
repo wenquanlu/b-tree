@@ -1131,7 +1131,7 @@ uint64_t btree_export(void * helper, struct node ** list) {
     int count = 0;
     *list = NULL;
     int result = pre_order(root, count, list);
-
+    fprintf(stderr, "I will never see you once again\n");
     sem_wait(r_sem);
     (*reading) --;
     if (*reading == 0) {
