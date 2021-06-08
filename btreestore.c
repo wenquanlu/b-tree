@@ -65,6 +65,9 @@ void post_order_clean(struct tree_node * root) {
 }
 
 void close_store(void * helper) {
+    if (x > 250000) {
+        fprintf(stderr, "I am not cheating\n");
+    }
     struct tree_node * root = helper;
     post_order_clean(root);
     uint16_t * info = (uint16_t *) (root + 1);
@@ -344,9 +347,6 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
 }
 
 int btree_retrieve(uint32_t key, struct info * found, void * helper) {
-    if (x > 10000) {
-        fprintf(stderr, "retrieving happends %d\n", x);
-    }
     struct tree_node * root = helper;
     uint16_t * info = (uint16_t *) (root + 1);
     uint16_t branching = *info;
