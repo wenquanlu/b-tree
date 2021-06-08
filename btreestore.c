@@ -414,6 +414,8 @@ int btree_retrieve(uint32_t key, struct info * found, void * helper) {
     return 1;
 }
 
+static int x = 0;
+
 int btree_decrypt(uint32_t key, void * output, void * helper) {
     struct tree_node * root = helper;
     uint16_t * info = (uint16_t *) (root + 1);
@@ -422,6 +424,10 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
     uint16_t * reading = info + 2;
     sem_t * r_sem = (sem_t *) (info + 3);
     sem_t * w_sem = (r_sem + 1);
+    x++;
+    if (x > 1000) {
+        fprintf(stderr, "%d\n", x);
+    }
 
     sem_wait(r_sem);
     (*reading) ++;
