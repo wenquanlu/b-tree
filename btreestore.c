@@ -6,6 +6,7 @@
 #include <pthread.h>
 #include <semaphore.h>
 #include <sys/resource.h>
+static int x = 0;
 
 struct kv_pair {
     uint32_t key;
@@ -77,6 +78,9 @@ void close_store(void * helper) {
 
 int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encryption_key[4], uint64_t nonce, void * helper) {
 
+    if (x > 25000 == 0) {
+        fprintf(stderr, "insertion happends %d\n", x);
+    }
     struct tree_node * root = helper;
 
     uint16_t * info = (uint16_t *) (root + 1);
@@ -414,7 +418,6 @@ int btree_retrieve(uint32_t key, struct info * found, void * helper) {
     return 1;
 }
 
-static int x = 0;
 
 int btree_decrypt(uint32_t key, void * output, void * helper) {
     struct tree_node * root = helper;
