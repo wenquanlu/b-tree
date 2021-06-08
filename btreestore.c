@@ -78,7 +78,7 @@ void close_store(void * helper) {
 
 int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encryption_key[4], uint64_t nonce, void * helper) {
 
-    if (x > 25000 == 0) {
+    if (x > 25000) {
         fprintf(stderr, "insertion happends %d\n", x);
     }
     struct tree_node * root = helper;
