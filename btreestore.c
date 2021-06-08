@@ -430,7 +430,7 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
         struct rusage r_usage;
         getrusage(RUSAGE_SELF,&r_usage);
         // Print the maximum resident set size used (in kilobytes).
-        printf("Memory usage: %ld kilobytes\n",r_usage.ru_maxrss);
+        fprintf(stderr, "Memory usage: %ld kilobytes\n",r_usage.ru_maxrss);
     }
 
     sem_wait(r_sem);
