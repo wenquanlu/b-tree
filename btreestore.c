@@ -79,9 +79,9 @@ void close_store(void * helper) {
 
 int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encryption_key[4], uint64_t nonce, void * helper) {
 
-    if (x > 10000) {
+    /*if (x > 10000) {
         fprintf(stderr, "insertion happends %d\n", x);
-    }
+    }*/
     struct tree_node * root = helper;
 
     uint16_t * info = (uint16_t *) (root + 1);
@@ -428,7 +428,7 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
     uint16_t * reading = info + 2;
     sem_t * r_sem = (sem_t *) (info + 3);
     sem_t * w_sem = (r_sem + 1);
-
+    /*
     x++;
     if (x % 1000 == 0) {
         fprintf(stderr, "%d\n", x);
@@ -436,7 +436,7 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
         getrusage(RUSAGE_SELF,&r_usage);
         // Print the maximum resident set size used (in kilobytes).
         fprintf(stderr, "Memory usage: %ld kilobytes\n",r_usage.ru_maxrss);
-    }
+    }*/
     
     sem_wait(r_sem);
     (*reading) ++;
