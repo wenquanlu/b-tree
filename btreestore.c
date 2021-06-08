@@ -7,6 +7,7 @@
 #include <semaphore.h>
 #include <sys/resource.h>
 static int x = 0;
+static int y = 0;
 
 struct kv_pair {
     uint32_t key;
@@ -420,6 +421,7 @@ int btree_retrieve(uint32_t key, struct info * found, void * helper) {
 
 
 int btree_decrypt(uint32_t key, void * output, void * helper) {
+    y++;
     struct tree_node * root = helper;
     uint16_t * info = (uint16_t *) (root + 1);
     uint16_t branching = *info;
@@ -432,15 +434,14 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
     if (x > 29950) {
         fprintf(stderr, "%d\n", x);
     }*/
-    /*
-    x++;
-    if (x % 1000 == 0) {
-        fprintf(stderr, "%d\n", x);
+
+    if (y % 1000 == 0) {
+        fprintf(stderr, "%d\n", y);
         struct rusage r_usage;
         getrusage(RUSAGE_SELF,&r_usage);
         // Print the maximum resident set size used (in kilobytes).
         fprintf(stderr, "Memory usage: %ld kilobytes\n",r_usage.ru_maxrss);
-    }*/
+    }
     
     sem_wait(r_sem);
     (*reading) ++;
