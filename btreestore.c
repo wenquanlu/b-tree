@@ -428,6 +428,10 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
     uint16_t * reading = info + 2;
     sem_t * r_sem = (sem_t *) (info + 3);
     sem_t * w_sem = (r_sem + 1);
+    x ++;
+    if (x > 29500) {
+        fprintf(stderr, "%d\n", x);
+    }
     /*
     x++;
     if (x % 1000 == 0) {
