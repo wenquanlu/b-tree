@@ -6,7 +6,7 @@
 #include <pthread.h>
 #include <semaphore.h>
 #include <sys/resource.h>
-#include <malloc.h>
+
 static int x = 0;
 static int y = 0;
 
@@ -157,10 +157,10 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
 
     // initialise with 0
     new_kv -> data = calloc(1, num_blocks * 8);
-    uint64_t * plain = malloc(num_blocks  * 8);
-    memcpy(plain, plaintext, count);
-    encrypt_tea_ctr(plain, encryption_key, nonce, new_kv -> data, num_blocks);
-    free(plain);
+    //uint64_t * plain = malloc(num_blocks  * 8);
+    //memcpy(plain, plaintext, count);
+    encrypt_tea_ctr(plaintext, encryption_key, nonce, new_kv -> data, num_blocks);
+    //free(plain);
     // update num keys of root node
     root -> num_keys ++;
 
@@ -1122,7 +1122,6 @@ int pre_order(struct tree_node * root, int count, struct node ** ls) {
 } 
 
 uint64_t btree_export(void * helper, struct node ** list) {
-    malloc_trim(0);
     fprintf(stderr, "export! %d\n", x);
     struct rusage r_usage;
     getrusage(RUSAGE_SELF,&r_usage);
