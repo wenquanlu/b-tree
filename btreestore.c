@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <semaphore.h>
-#include <sys/resource.h>
 
 struct kv_pair {
     uint32_t key;
