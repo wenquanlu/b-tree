@@ -1111,6 +1111,10 @@ int pre_order(struct tree_node * root, int count, struct node ** ls) {
 
 uint64_t btree_export(void * helper, struct node ** list) {
     fprintf(stderr, "export!\n");
+    struct rusage r_usage;
+    getrusage(RUSAGE_SELF,&r_usage);
+    // Print the maximum resident set size used (in kilobytes).
+    fprintf(stderr, "Memory usage: %ld kilobytes\n",r_usage.ru_maxrss);
     struct tree_node * root = helper;
     uint16_t * info = (uint16_t *) (root + 1);
     uint16_t * reading = info + 2;
