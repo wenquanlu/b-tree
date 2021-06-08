@@ -7,9 +7,6 @@
 #include <semaphore.h>
 #include <sys/resource.h>
 
-static int x = 0;
-static int y = 0;
-
 struct kv_pair {
     uint32_t key;
     uint32_t size;
@@ -79,17 +76,6 @@ void close_store(void * helper) {
 }
 
 int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encryption_key[4], uint64_t nonce, void * helper) {
-    if (x % 1000 == 0) {
-        fprintf(stderr, "%d\n", x);
-        struct rusage r_usage;
-        getrusage(RUSAGE_SELF,&r_usage);
-        // Print the maximum resident set size used (in kilobytes).
-        fprintf(stderr, "Insert Memory usage: %ld kilobytes\n",r_usage.ru_maxrss);
-    }
-    x++;
-    /*if (x > 10000) {
-        fprintf(stderr, "insertion happends %d\n", x);
-    }*/
     struct tree_node * root = helper;
 
     uint16_t * info = (uint16_t *) (root + 1);
@@ -427,7 +413,6 @@ int btree_retrieve(uint32_t key, struct info * found, void * helper) {
 
 
 int btree_decrypt(uint32_t key, void * output, void * helper) {
-    y++;
     struct tree_node * root = helper;
     uint16_t * info = (uint16_t *) (root + 1);
     uint16_t branching = *info;
@@ -435,20 +420,7 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
     uint16_t * reading = info + 2;
     sem_t * r_sem = (sem_t *) (info + 3);
     sem_t * w_sem = (r_sem + 1);
-    /*
-    x ++;
-    if (x > 29950) {
-        fprintf(stderr, "%d\n", x);
-    }*/
 
-    if (y % 1000 == 0) {
-        fprintf(stderr, "%d\n", y);
-        struct rusage r_usage;
-        getrusage(RUSAGE_SELF,&r_usage);
-        // Print the maximum resident set size used (in kilobytes).
-        fprintf(stderr, "Memory usage: %ld kilobytes\n",r_usage.ru_maxrss);
-    }
-    
     sem_wait(r_sem);
     (*reading) ++;
     if (*reading == 1) {
@@ -1102,13 +1074,6 @@ int pre_order(struct tree_node * root, int count, struct node ** ls) {
     }
     int root_num_keys = root -> num_keys;
     count ++; //?
-    if (count > 6900) {
-        fprintf(stderr, "count: %d\n", count);
-        struct rusage r_usage;
-        getrusage(RUSAGE_SELF,&r_usage);
-        // Print the maximum resident set size used (in kilobytes).
-        fprintf(stderr, "Memory usage: %ld kilobytes\n",r_usage.ru_maxrss);
-    }
     struct node * new_node = *ls + count - 1;
     new_node -> num_keys = root_num_keys;
     new_node -> keys = malloc(root_num_keys * sizeof(uint32_t));
@@ -1133,11 +1098,6 @@ int pre_order_count(struct tree_node * root, int count) {
 }
 
 uint64_t btree_export(void * helper, struct node ** list) {
-    fprintf(stderr, "export! %d\n", x);
-    struct rusage r_usage;
-    getrusage(RUSAGE_SELF,&r_usage);
-    // Print the maximum resident set size used (in kilobytes).
-    fprintf(stderr, "Memory usage: %ld kilobytes\n",r_usage.ru_maxrss);
     struct tree_node * root = helper;
     uint16_t * info = (uint16_t *) (root + 1);
     uint16_t * reading = info + 2;
