@@ -417,6 +417,7 @@ int btree_retrieve(uint32_t key, struct info * found, void * helper) {
 //static int x = 0;
 
 int btree_decrypt(uint32_t key, void * output, void * helper) {
+    /*
     struct tree_node * root = helper;
     uint16_t * info = (uint16_t *) (root + 1);
     uint16_t branching = *info;
@@ -433,7 +434,7 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
         // Print the maximum resident set size used (in kilobytes).
         fprintf(stderr, "Memory usage: %ld kilobytes\n",r_usage.ru_maxrss);
     }
-    */
+    
     sem_wait(r_sem);
     (*reading) ++;
     if (*reading == 1) {
@@ -511,7 +512,7 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
         sem_post(w_sem);
     }
     sem_post(r_sem);
-    return 1;
+    return 1; */
 }
 
 void swap_key(struct tree_node * node1, int key_index1, struct tree_node * node2, int key_index2) {
