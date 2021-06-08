@@ -6,7 +6,6 @@
 #include <pthread.h>
 #include <semaphore.h>
 #include <sys/resource.h>
-static int x = 0;
 
 struct kv_pair {
     uint32_t key;
@@ -65,14 +64,13 @@ void post_order_clean(struct tree_node * root) {
 }
 
 void close_store(void * helper) {
-    fprintf(stderr, "I am not cheating\n");
     struct tree_node * root = helper;
     post_order_clean(root);
     uint16_t * info = (uint16_t *) (root + 1);
     sem_t * r_sem = (sem_t *) (info + 3);
     sem_t * w_sem = (r_sem + 1);
-    //sem_destroy(r_sem);
-    //sem_destroy(w_sem);
+    sem_destroy(r_sem);
+    sem_destroy(w_sem);
     free(helper);
     return;
 }
@@ -1123,23 +1121,23 @@ uint64_t btree_export(void * helper, struct node ** list) {
     sem_t * w_sem = (r_sem + 1);
     sem_destroy(r_sem);
     sem_destroy(w_sem);
-    /*
+
     sem_wait(r_sem);
     (*reading) ++;
     if (*reading == 1) {
         sem_wait(w_sem);
     }
-    sem_post(r_sem);*/
+    sem_post(r_sem);
     int count = 0;
     *list = NULL;
     int result = pre_order(root, count, list);
-    /*
+
     sem_wait(r_sem);
     (*reading) --;
     if (*reading == 0) {
         sem_post(w_sem);
     }
-    sem_post(r_sem);*/
+    sem_post(r_sem);
 
     return result;
 }
