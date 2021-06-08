@@ -1091,7 +1091,6 @@ int btree_delete(uint32_t key, void * helper) {
 
 int pre_order(struct tree_node * root, int count, struct node ** ls) {
     if (root -> children == NULL) {
-        *ls = realloc(*ls, (count + 1) * sizeof(struct node));
         struct node * new_node = *ls + count;
         int num_keys = root -> num_keys;
         new_node -> num_keys = num_keys;
@@ -1110,7 +1109,6 @@ int pre_order(struct tree_node * root, int count, struct node ** ls) {
         // Print the maximum resident set size used (in kilobytes).
         fprintf(stderr, "Memory usage: %ld kilobytes\n",r_usage.ru_maxrss);
     }
-    *ls = realloc(*ls, (count) * sizeof(struct node));
     struct node * new_node = *ls + count - 1;
     new_node -> num_keys = root_num_keys;
     new_node -> keys = malloc(root_num_keys * sizeof(uint32_t));
@@ -1123,6 +1121,17 @@ int pre_order(struct tree_node * root, int count, struct node ** ls) {
     return count;
 } 
 
+int pre_order_count(struct tree_node * root, int count) {
+    if (root -> children == NULL) {
+        return count + 1;
+    }
+    count ++;
+    for (int i = 0; i < (root -> num_keys) + 1; i++) {
+        count = pre_order_count((root -> children) + i, count);
+    }
+    return count;
+}
+
 uint64_t btree_export(void * helper, struct node ** list) {
     fprintf(stderr, "export! %d\n", x);
     struct rusage r_usage;
@@ -1134,8 +1143,6 @@ uint64_t btree_export(void * helper, struct node ** list) {
     uint16_t * reading = info + 2;
     sem_t * r_sem = (sem_t *) (info + 3);
     sem_t * w_sem = (r_sem + 1);
-    sem_destroy(r_sem);
-    sem_destroy(w_sem);
 
     sem_wait(r_sem);
     (*reading) ++;
@@ -1144,9 +1151,11 @@ uint64_t btree_export(void * helper, struct node ** list) {
     }
     sem_post(r_sem);
     int count = 0;
-    *list = NULL;
+    //*list = NULL;
+    int length = pre_order_count(root, 0);
+    *list = malloc(sizeof(struct node) * length);
     int result = pre_order(root, count, list);
-    fprintf(stderr, "I will never see you once again\n");
+
     sem_wait(r_sem);
     (*reading) --;
     if (*reading == 0) {
