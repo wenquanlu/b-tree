@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <semaphore.h>
-
+#include <sys/resource.h>
 
 struct kv_pair {
     uint32_t key;
@@ -427,6 +427,10 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
     x++;
     if (x > 29950) {
         fprintf(stderr, "%d\n", x);
+        struct rusage r_usage;
+        getrusage(RUSAGE_SELF,&r_usage);
+        // Print the maximum resident set size used (in kilobytes).
+        printf("Memory usage: %ld kilobytes\n",r_usage.ru_maxrss);
     }
 
     sem_wait(r_sem);
