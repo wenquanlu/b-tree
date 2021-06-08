@@ -83,7 +83,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         struct rusage r_usage;
         getrusage(RUSAGE_SELF,&r_usage);
         // Print the maximum resident set size used (in kilobytes).
-        fprintf(stderr, "Memory usage: %ld kilobytes\n",r_usage.ru_maxrss);
+        fprintf(stderr, "Insert Memory usage: %ld kilobytes\n",r_usage.ru_maxrss);
     }
     x++;
     /*if (x > 10000) {
