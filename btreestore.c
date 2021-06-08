@@ -1109,6 +1109,10 @@ uint64_t btree_export(void * helper, struct node ** list) {
         sem_wait(w_sem);
     }
     sem_post(r_sem);
+    if (root -> num_keys == 0) {
+        *list = NULL;
+        return 0;
+    }
     int count = 0;
     //*list = NULL;
     int length = pre_order_count(root, 0);
