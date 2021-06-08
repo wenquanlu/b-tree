@@ -471,12 +471,12 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
                     } else {
                         num_blocks = num_bytes/8 + 1;
                     }
-                    //uint64_t * plain = malloc(num_blocks * 8);
+                    uint64_t * plain = malloc(num_blocks * 8);
                     decrypt_tea_ctr(((root -> pairs) + count) -> data
                     , ((root -> pairs) + count) -> encryption_key,
-                    ((root -> pairs) + count) -> nonce, output, num_blocks);
-                    //memcpy(output, plain, ((root -> pairs) + count) -> size);
-                    //free(plain);
+                    ((root -> pairs) + count) -> nonce, plain, num_blocks);
+                    memcpy(output, plain, ((root -> pairs) + count) -> size);
+                    free(plain);
                     sem_wait(r_sem);
                     (*reading) --;
                     if (*reading == 0) {
@@ -1105,6 +1105,10 @@ int pre_order(struct tree_node * root, int count, struct node ** ls) {
     count ++; //?
     if (count > 6900) {
         fprintf(stderr, "count: %d\n", count);
+        struct rusage r_usage;
+        getrusage(RUSAGE_SELF,&r_usage);
+        // Print the maximum resident set size used (in kilobytes).
+        fprintf(stderr, "Memory usage: %ld kilobytes\n",r_usage.ru_maxrss);
     }
     *ls = realloc(*ls, (count) * sizeof(struct node));
     struct node * new_node = *ls + count - 1;
