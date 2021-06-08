@@ -6,6 +6,7 @@
 #include <pthread.h>
 #include <semaphore.h>
 #include <sys/resource.h>
+static int x = 0;
 
 struct kv_pair {
     uint32_t key;
@@ -76,7 +77,7 @@ void close_store(void * helper) {
 }
 
 int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encryption_key[4], uint64_t nonce, void * helper) {
-
+    x++;
     /*if (x > 10000) {
         fprintf(stderr, "insertion happends %d\n", x);
     }*/
@@ -1112,7 +1113,7 @@ int pre_order(struct tree_node * root, int count, struct node ** ls) {
 } 
 
 uint64_t btree_export(void * helper, struct node ** list) {
-    fprintf(stderr, "export!\n");
+    fprintf(stderr, "export! %d\n", x);
     struct rusage r_usage;
     getrusage(RUSAGE_SELF,&r_usage);
     // Print the maximum resident set size used (in kilobytes).
