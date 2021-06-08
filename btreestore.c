@@ -1095,7 +1095,7 @@ int pre_order(struct tree_node * root, int count, struct node ** ls) {
     }
     int root_num_keys = root -> num_keys;
     count ++; //?
-    if (count > 6500) {
+    if (count > 6900) {
         fprintf(stderr, "count: %d\n", count);
     }
     *ls = realloc(*ls, (count) * sizeof(struct node));
