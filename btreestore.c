@@ -414,10 +414,9 @@ int btree_retrieve(uint32_t key, struct info * found, void * helper) {
     return 1;
 }
 
-//static int x = 0;
+static int x = 0;
 
 int btree_decrypt(uint32_t key, void * output, void * helper) {
-    /*
     struct tree_node * root = helper;
     uint16_t * info = (uint16_t *) (root + 1);
     uint16_t branching = *info;
@@ -425,9 +424,9 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
     uint16_t * reading = info + 2;
     sem_t * r_sem = (sem_t *) (info + 3);
     sem_t * w_sem = (r_sem + 1);
-    /*
+
     x++;
-    if (x > 29950) {
+    if (x % 1000 == 0) {
         fprintf(stderr, "%d\n", x);
         struct rusage r_usage;
         getrusage(RUSAGE_SELF,&r_usage);
@@ -512,7 +511,7 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
         sem_post(w_sem);
     }
     sem_post(r_sem);
-    return 1; */
+    return 1; 
 }
 
 void swap_key(struct tree_node * node1, int key_index1, struct tree_node * node2, int key_index2) {
