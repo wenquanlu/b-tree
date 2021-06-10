@@ -69,6 +69,38 @@ void test_basic_export() {
 }
 
 
+void test_retrieve() {
+    struct info result = {};
+    void * helper = init_store(5, 8);
+    uint32_t encryptionz_key[4] = {5,6,7,8};
+    uint32_t encryptionz_key2[4] = {1,2,3,4};
+    uint32_t encryptionz_key3[4] = {3,1,4,1};
+    btree_insert(68, "hello", 6, encryptionz_key, 9, helper);
+    btree_insert(12, "world", 6, encryptionz_key2, 10, helper);
+    btree_insert(42, "from", 5, encryptionz_key3, 11, helper);
+    btree_insert(78, "david", 6, encryptionz_key, 12, helper);
+    btree_insert(92, "good", 5, encryptionz_key2, 13, helper);
+    btree_insert(81, "morning", 8, encryptionz_key3, 14, helper);
+    btree_insert(33, "night", 6, encryptionz_key, 15, helper);
+    btree_retrieve(12, &result, helper);
+    assert_int_equal(result.nonce, 10);
+    assert_int_equal(result.size, 6);
+    assert_int_equal(result.key[0], 1);
+    assert_int_equal(result.key[1], 2);
+    assert_int_equal(result.key[2], 3);
+    assert_int_equal(result.key[3], 4);
+
+    btree_retrieve(81, &result, helper);
+    assert_int_equal(result.nonce, 14);
+    assert_int_equal(result.size, 8);
+
+    assert_int_equal(result.key[0], 3);
+    assert_int_equal(result.key[1], 1);
+    assert_int_equal(result.key[2], 4);
+    assert_int_equal(result.key[3], 1);
+    close_store(helper);
+}
+
 void test_basic_delete() {
     void * helper = init_store(3, 4);
     uint32_t encryptionz_key[4] = {1,2,3,4};
@@ -154,12 +186,105 @@ void test_basic_delete() {
 
 }
 
+void test_stress() {
+    void * helper = init_store(3, 4);
+    uint32_t encryptionz_key[4] = {1,2,3,4};  
+    btree_insert(10200, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(200, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(20200, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(10201, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(201, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(10202, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(20201, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(202, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(10203, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(20202, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(203, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(10204, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(20203, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(204, "abcdefg", 8, encryptionz_key, 12, helper); ///<----
+    btree_insert(10205, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(20204, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(205, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(10206, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(20205, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(206, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(10207, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(20206, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(207, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(10208, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(20207, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(208, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(10209, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(20208, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(209, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(10210, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(20209, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(210, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(10211, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(20210, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(211, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(10212, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(20211, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(212, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(10213, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(20212, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(213, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(10214, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(20213, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(214, "abcdefg", 8, encryptionz_key, 12, helper);
+    btree_insert(10215, "abcdefg", 8, encryptionz_key, 12, helper);
+    close_store(helper);
+}
+
+void test_empty_export() {
+    void * helper = init_store(3, 4);
+    uint32_t encryptionz_key[4] = {5,6,7,8};
+    btree_insert(3, "mercifu", 8, encryptionz_key, 9, helper);
+    btree_insert(4, "grace", 6, encryptionz_key, 9, helper);
+    btree_insert(1, "good morning!", 14, encryptionz_key, 9, helper);
+    btree_insert(6, "mercifu", 8, encryptionz_key, 9, helper);
+    btree_delete(1, helper);
+    btree_delete(3, helper);
+    btree_delete(4, helper);
+    btree_delete(6, helper);
+    struct node *list = NULL;
+    int x = btree_export(helper, &list);
+    assert_int_equal(x, 0);
+    assert_null(list);
+    close_store(helper);
+}
+
+void test_error() {
+    void * helper = init_store(3, 4);
+    uint32_t encryptionz_key[4] = {5,6,7,8};
+    int ret = btree_insert(3, "mercifu", 8, encryptionz_key, 9, helper);
+    assert_int_equal(ret, 0);
+    int ret1 = btree_insert(3, "mercifu", 8, encryptionz_key, 9, helper);
+    btree_insert(4, "grace", 6, encryptionz_key, 9, helper);
+    btree_insert(8, "good morning!", 14, encryptionz_key, 9, helper);
+    btree_insert(6, "mercifu", 8, encryptionz_key, 9, helper);
+    assert_int_equal(ret1, 1);
+    int ret2 = btree_delete(1, helper);
+    assert_int_equal(ret2, 1);
+    char decrypt_result[10] = {};
+    int ret3 = btree_decrypt(0, decrypt_result, helper);
+    assert_int_equal(ret3, 1);
+    close_store(helper);
+}
+
+
+
 int main() {
     // Your own testing code here
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_basic_insert_decrypt),
         cmocka_unit_test(test_basic_export),
-        cmocka_unit_test(test_basic_delete)
+        cmocka_unit_test(test_basic_delete),
+        cmocka_unit_test(test_stress),
+        cmocka_unit_test(test_empty_export),
+        cmocka_unit_test(test_error),
+        cmocka_unit_test(test_retrieve)
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }

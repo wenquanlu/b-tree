@@ -693,7 +693,7 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
     parent -> children = malloc(((parent -> num_keys) * sizeof(struct tree_node)));
 
     if (((parent -> num_keys) - 1) * sizeof(struct kv_pair) == 0) {
-        parent -> pairs == NULL;
+        parent -> pairs = NULL;
     } else {
         parent -> pairs = malloc(((parent -> num_keys) - 1) * sizeof(struct kv_pair));
     }
@@ -1030,7 +1030,7 @@ int btree_delete(uint32_t key, void * helper) {
                     merge_from_right(parent, right_child, parent -> parent, 0);
                 } else {
                     struct tree_node * left_child = pp_children + pc_index - 1;
-                    merge_from_left(parent, left_child, parent -> parent, pc_index - 1);
+                    merge_from_left(left_child, parent, parent -> parent, pc_index - 1);
                 }
                 parent = p_parent;
             }
