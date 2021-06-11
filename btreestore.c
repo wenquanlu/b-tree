@@ -747,6 +747,7 @@ void move_c_from_right_to_left(struct tree_node * left_node, struct tree_node * 
             }
         }
     }
+    (left_node -> children + (left_node -> num_keys)) -> parent = left_node;
 }
 
 void move_c_from_left_to_right(struct tree_node * left_node, struct tree_node * right_node) {
@@ -775,6 +776,7 @@ void move_c_from_left_to_right(struct tree_node * left_node, struct tree_node * 
             }
         }
     }
+    (right_node -> children) -> parent = right_node;
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int btree_delete(uint32_t key, void * helper) {

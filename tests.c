@@ -8,7 +8,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
-
+#include <pthread.h>
 
 void test_basic_insert_decrypt() {
     void * helper = init_store(3, 4);
@@ -93,11 +93,12 @@ void test_retrieve() {
     btree_retrieve(81, &result, helper);
     assert_int_equal(result.nonce, 14);
     assert_int_equal(result.size, 8);
-
+    
     assert_int_equal(result.key[0], 3);
     assert_int_equal(result.key[1], 1);
     assert_int_equal(result.key[2], 4);
     assert_int_equal(result.key[3], 1);
+
     close_store(helper);
 }
 
@@ -274,6 +275,93 @@ void test_error() {
 }
 
 
+void test_bulk_insert_delete() {
+    void * helper = init_store(3, 4);
+    uint32_t encryptionz_key[4] = {5,2,7,3};
+    for (int i = 0; i < 5000; i++) {
+        btree_insert(i, "ascending", 10, encryptionz_key, 9, helper);
+        btree_insert(10001 - i, "descending", 10, encryptionz_key, 9, helper);
+    }
+    for (int i = 0; i < 4999; i++) {
+        btree_delete(10001 - i, helper);
+        btree_delete(i, helper);
+    }
+    char decrypt[12] = {};
+    btree_decrypt(4999, decrypt, helper);
+    assert_string_equal("ascending", decrypt);
+    btree_decrypt(5002, decrypt, helper);
+    assert_string_equal("descending", decrypt);
+    close_store(helper);
+}
+
+void* insert_twenty(void * helper) {
+    uint32_t encryptionz_key[4] = {5,2,7,3};
+    for (int i = 0; i < 10; i++) {
+        btree_insert(i, "text", 5, encryptionz_key, 11, helper);
+    }
+}
+
+void test_concurrent_insert() {
+    void * helper = init_store(3, 4);
+    pthread_t thread_ids[3] = {};
+    for (int i = 0; i < 3; i++) {
+        pthread_create(&thread_ids[i], NULL, insert_twenty, helper);
+    }
+    for (int i = 0; i < 3; i++) {
+        pthread_join(thread_ids[i], NULL);
+    }
+    struct node *list = NULL;
+    int num = btree_export(helper, &list);
+    assert_int_equal(num, 8);
+    for (int i = 0; i < num; i++) {
+        free(list[i].keys);
+    }
+    free(list);
+    close_store(helper);
+}
+
+void * insert_key(void * helper) {
+    uint32_t encryptionz_key[4] = {5,2,7,3};
+    for (int i = 0; i < 10; i++) {
+        //printf("btree_insert(%d, \"text\", 5, encryptionz_key, 11, helper);\n", i);
+        btree_insert(i, "text", 5, encryptionz_key, 11, helper);
+        sleep(0.1);
+    }
+}
+
+void * delete_key(void * helper) {
+    for (int i = 0; i < 10; i++) {
+        //printf("btree_delete(%d, helper);\n", i);
+        btree_delete(i, helper);
+        sleep(0.1);
+    }
+}
+
+void test_interleave_insert_delete() {
+    void * helper = init_store(3, 8);
+    pthread_t thread_ids[7] = {};
+    for (int i = 0; i < 7; i++) {
+        if (i % 2 == 0) {
+            pthread_create(&thread_ids[i], NULL, insert_key, helper);
+        } else {
+            pthread_create(&thread_ids[i], NULL, delete_key, helper);
+        }
+        //printf("i: %d\n", i);
+    }
+    for (int i = 0; i < 7; i++) {
+        pthread_join(thread_ids[i], NULL);
+    }
+    /*
+    struct node *list = NULL;
+    int num = btree_export(helper, &list);
+    assert_int_equal(num, 8);
+    for (int i = 0; i < num; i++) {
+        free(list[i].keys);
+    }
+    free(list);*/
+    close_store(helper);
+}
+
 
 int main() {
     // Your own testing code here
@@ -284,7 +372,11 @@ int main() {
         cmocka_unit_test(test_stress),
         cmocka_unit_test(test_empty_export),
         cmocka_unit_test(test_error),
-        cmocka_unit_test(test_retrieve)
+        cmocka_unit_test(test_retrieve),
+        cmocka_unit_test(test_bulk_insert_delete),
+        cmocka_unit_test(test_concurrent_insert),
+        cmocka_unit_test(test_interleave_insert_delete)
+        //cmocka_unit_test(test_test)
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }
