@@ -79,7 +79,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
 
     uint16_t * info = (uint16_t *) (root + 1);
     uint16_t branching = *info;
-    uint16_t n_processors = *(info + 1);
+    //uint16_t n_processors = *(info + 1);
 
     sem_t * r_sem = (sem_t *) (info + 3);
     sem_t * w_sem = (r_sem + 1);
@@ -339,7 +339,7 @@ int btree_retrieve(uint32_t key, struct info * found, void * helper) {
     struct tree_node * root = helper;
     uint16_t * info = (uint16_t *) (root + 1);
     uint16_t branching = *info;
-    uint16_t n_processors = *(info + 1);
+    //uint16_t n_processors = *(info + 1);
     uint16_t * reading = info + 2;
     sem_t * r_sem = (sem_t *) (info + 3);
     sem_t * w_sem = (r_sem + 1);
@@ -415,7 +415,7 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
     struct tree_node * root = helper;
     uint16_t * info = (uint16_t *) (root + 1);
     uint16_t branching = *info;
-    uint16_t n_processors = *(info + 1);
+    //uint16_t n_processors = *(info + 1);
     uint16_t * reading = info + 2;
     sem_t * r_sem = (sem_t *) (info + 3);
     sem_t * w_sem = (r_sem + 1);
@@ -785,7 +785,7 @@ int btree_delete(uint32_t key, void * helper) {
     uint16_t * info = (uint16_t *) (root + 1);
     uint16_t branching = *info;
     //fprintf(stderr, "branching: %d\n", branching);
-    uint16_t n_processors = *(info + 1);
+    //uint16_t n_processors = *(info + 1);
     sem_t * r_sem = (sem_t *) (info + 3);
     sem_t * w_sem = (r_sem + 1);
     sem_wait(w_sem);
