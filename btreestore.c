@@ -187,7 +187,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
 
         memcpy(right_node -> pairs, original_kv_ptr + midindex + 1, (num_key_right) * sizeof(struct kv_pair));
         right_node -> parent = parent;
-        ////////
+
         if (right_node -> children != NULL) {
             for (int i = 0; i <= right_node -> num_keys; i++) {
                 struct tree_node * child = right_node -> children + i;
@@ -198,7 +198,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
                 }
             }
         }
-        ////////    
+
         left_node -> num_keys = num_key_left;
         left_node -> children = malloc(sizeof(struct tree_node) * (num_key_left + 1));
         left_node -> pairs = malloc(sizeof(struct kv_pair) * (num_key_left));
@@ -210,7 +210,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         }
         memcpy(left_node -> pairs, original_kv_ptr, num_key_left * sizeof(struct kv_pair));
         left_node -> parent = parent;
-        //////
+
         if (left_node -> children != NULL) {
             for (int i = 0; i <= left_node -> num_keys; i++) {
                 struct tree_node * child = left_node -> children + i;
@@ -221,7 +221,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
                 }
             }
         }
-        ///////
+
         free(original_child_ptr);
 
         free(original_kv_ptr);
@@ -268,7 +268,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
 
         memcpy(right_node -> pairs, original_kv_ptr + midindex + 1, num_key_right * sizeof(struct kv_pair));
         right_node -> parent = root;
-        ///////
+
         if (right_node -> children != NULL) {
             for (int i = 0; i <= right_node -> num_keys; i++) {
                 (right_node -> children + i) -> parent = right_node;
@@ -280,7 +280,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
                 }
             }
         }
-        ///////
+
         left_node -> num_keys = num_key_left;
 
         left_node -> children = malloc(sizeof(struct tree_node) * (num_key_left + 1));
@@ -296,7 +296,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
 
         root -> pairs = malloc(sizeof(struct kv_pair));
         memcpy(root -> pairs, original_kv_ptr + midindex, sizeof(struct kv_pair));
-        /////////
+
         if (left_node -> children != NULL) {
             for (int i = 0; i <= left_node -> num_keys; i++) {
                 (left_node -> children + i) -> parent = left_node;
@@ -308,7 +308,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
                 }
             }
         }
-        ////////
+
         free(original_child_ptr);
 
         free(original_kv_ptr);
@@ -442,7 +442,7 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
                 }
                 count ++;
             }
-            //fprintf(stderr, "changed root\n");
+
             root = (root -> children) + count;
         }
     int leaf_count = 0;
@@ -587,7 +587,7 @@ void merge_from_left(struct tree_node * left_node, struct tree_node * right_node
     }
     free(left_node -> children);
     right_node -> num_keys = (right_node -> num_keys) + left_node_num_keys + 1;
-    ////////
+
     if (right_node -> children != NULL) {
         for (int i = 0; i <= right_node -> num_keys; i++) {
             struct tree_node * right_node_child = right_node -> children + i;
@@ -598,7 +598,7 @@ void merge_from_left(struct tree_node * left_node, struct tree_node * right_node
             }
         }
     }
-    ////////
+
     parent -> children = malloc(((parent -> num_keys) * sizeof(struct tree_node)));
     if (((parent -> num_keys) - 1) * sizeof(struct kv_pair) == 0) {
         parent -> pairs = NULL;
@@ -617,7 +617,7 @@ void merge_from_left(struct tree_node * left_node, struct tree_node * right_node
     free(original_parent_children);
     free(original_parent_keys);
     (parent -> num_keys) --;
-    ////////
+
     for (int i = 0; i <= parent -> num_keys; i++) {
         struct tree_node * child = parent -> children + i;
         if (child -> children != NULL) {
@@ -626,7 +626,7 @@ void merge_from_left(struct tree_node * left_node, struct tree_node * right_node
             }
         }
     }
-    /////////
+
 }
 
 void merge_from_right(struct tree_node * left_node, struct tree_node * right_node,
@@ -661,7 +661,7 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
 
     left_node -> num_keys = (left_node -> num_keys) + right_node_num_keys + 1;
 
-    /////////
+
     if (left_node -> children != NULL) {
         for (int i = 0; i <= left_node -> num_keys; i++) {
             struct tree_node * left_node_child = left_node -> children + i;
@@ -672,7 +672,7 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
             }
         }
     }
-    /////////
+
 
     parent -> children = malloc(((parent -> num_keys) * sizeof(struct tree_node)));
 
@@ -693,7 +693,7 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
     free(original_parent_children);
     free(original_parent_keys);
     (parent -> num_keys) --;
-    ///////////
+
     for (int i = 0; i <= parent -> num_keys; i++) {
         struct tree_node * child = parent -> children + i;
         if (child -> children != NULL) {
@@ -703,7 +703,7 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
             }
         }
     }
-    ///////////
+
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void move_c_from_right_to_left(struct tree_node * left_node, struct tree_node * right_node) {
@@ -762,13 +762,13 @@ void move_c_from_left_to_right(struct tree_node * left_node, struct tree_node * 
     }
     (right_node -> children) -> parent = right_node;
 }
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 int btree_delete(uint32_t key, void * helper) {
-    //fprintf(stderr, "key:: %d\n", key);
+
     struct tree_node * root = helper;
     uint16_t * info = (uint16_t *) (root + 1);
     uint16_t branching = *info;
-    //fprintf(stderr, "branching: %d\n", branching);
+
     //uint16_t n_processors = *(info + 1);
     sem_t * r_sem = (sem_t *) (info + 3);
     sem_t * w_sem = (r_sem + 1);
@@ -801,7 +801,7 @@ int btree_delete(uint32_t key, void * helper) {
             }
             count ++;
         }
-        //fprintf(stderr, "changed root\n"); 
+
         root = (root -> children) + count;
     }
     
@@ -813,21 +813,20 @@ int btree_delete(uint32_t key, void * helper) {
                 break;
             }
             if (curr_key == key) {
-                //fprintf(stderr, "root: %p\n", root);
+
                 found = 1;
                 leaf_key_index = leaf_count;
                 leaf_node = root;
-                //fprintf(stderr, "key: %d\n", leaf_node ->pairs -> key);
+
                 break;
             }
             leaf_count ++;
         }
     }
     if (found) {
-        //fprintf(stderr, "key: %d\n", leaf_node ->pairs -> key);
+
         struct tree_node * parent = leaf_node -> parent;
-        //fprintf(stderr, "pchi: %p\n", parent -> children);
-        //fprintf(stderr, "actual father: %p\n", parent);
+
         delete_key_from_leaf_node(leaf_node, leaf_key_index);
         if (leaf_node -> num_keys + 1 >= lower_bound) {
             sem_post(w_sem);
@@ -857,7 +856,7 @@ int btree_delete(uint32_t key, void * helper) {
                     struct kv_pair * min = delete_key_from_leaf_node_with_return(
                         right_sib, 0
                     );
-                    //remember to free min
+
                     move_key_to_leaf(
                         leaf_node -> parent, child_index, p_children + child_index
                     );
@@ -877,8 +876,7 @@ int btree_delete(uint32_t key, void * helper) {
                     move_key_to_leaf(
                         leaf_node -> parent, child_index - 1, p_children + child_index
                     );
-                    //remember to free max
-                    // replace
+
                     memcpy((leaf_node -> parent -> pairs) + child_index - 1, max, sizeof(struct kv_pair)); // edited leaf_node -> parent
                     free(max);
                     sem_post(w_sem);
@@ -898,7 +896,7 @@ int btree_delete(uint32_t key, void * helper) {
                     move_key_to_leaf(
                         leaf_node -> parent, child_index - 1, p_children + child_index
                     );
-                    //remember to free max
+
                     memcpy((leaf_node -> parent -> pairs) + child_index - 1, max, sizeof(struct kv_pair));
                     free(max);
                     sem_post(w_sem);
@@ -914,7 +912,7 @@ int btree_delete(uint32_t key, void * helper) {
                         move_key_to_leaf(
                         leaf_node -> parent, child_index, p_children + child_index
                         );
-                        //remember to free min
+
                         memcpy((leaf_node -> parent -> pairs) + child_index, min, sizeof(struct kv_pair));
                         free(min);
                         sem_post(w_sem);
@@ -933,7 +931,7 @@ int btree_delete(uint32_t key, void * helper) {
                 merge_from_left(left_child, leaf_node, leaf_node -> parent, child_index - 1);
             }
 
-            ///////////////////////////////////////////////////////////////////////////
+
             while ((parent -> parent != NULL) && (parent -> num_keys + 1 < lower_bound)) {
                 struct tree_node * p_parent = parent -> parent;
                 int p_parent_num_keys = parent -> parent -> num_keys;
@@ -1037,7 +1035,7 @@ int btree_delete(uint32_t key, void * helper) {
             sem_post(w_sem);
             return 0;
         }
-        ///////////////////////////////////////////////////////////////////////////
+
     } else {
         sem_post(w_sem);
         return 1;
@@ -1118,12 +1116,11 @@ uint64_t btree_export(void * helper, struct node ** list) {
 void encrypt_tea(uint32_t plain[2], uint32_t cipher[2], uint32_t key[4]) {
     // plain contains the 64 bit plaintext
     uint32_t sum = 0;
-    uint32_t delta = 0x9E3779B9;
     cipher[0] = plain[0];
     cipher[1] = plain[1];
     // loop 1024 times:
     for (int i = 0; i < 1024; i++) {
-        sum = (sum + delta);
+        sum = (sum + 0x9E3779B9);
         cipher[0] = (cipher[0] + (((cipher[1] << 4) + key[0]) ^ 
                                     (cipher[1] + sum) ^ 
                                     ((cipher[1] >> 5) + key[1]))); 
