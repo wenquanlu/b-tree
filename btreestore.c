@@ -6,22 +6,6 @@
 #include <pthread.h>
 #include <semaphore.h>
 
-struct kv_pair {
-    uint32_t key;
-    uint32_t size;
-    uint32_t encryption_key[4];
-    uint64_t nonce;
-    void * data;
-};
-
-struct tree_node {
-    uint16_t num_keys;
-    struct kv_pair * pairs;
-    struct tree_node * parent;
-    struct tree_node * children;
-};
-
-
 void * init_store(uint16_t branching, uint8_t n_processors) {
     struct tree_node * root = malloc(sizeof(struct tree_node) + 
                                     3 * sizeof(uint16_t) + 
