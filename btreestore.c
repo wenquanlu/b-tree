@@ -246,7 +246,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count,
         left_node -> parent = parent;
 
         // As left node's children has new addresses
-        // let their children point to the new addresses        
+        // let their children point to the new addresses     
         if (left_node -> children != NULL) {
             for (int i = 0; i <= left_node -> num_keys; i++) {
                 struct tree_node * child = left_node -> children + i;
