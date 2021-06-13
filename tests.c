@@ -337,6 +337,21 @@ void * delete_key(void * helper) {
     }
 }
 
+void * insert_key2(void * helper) {
+    uint32_t encryptionz_key[4] = {3,6,9,4};
+    for (int i = 0; i < 10; i++) {
+        btree_insert(9 - i, "text", 5, encryptionz_key, 11, helper);
+        sleep(0.1);
+    }
+}
+
+void * delete_key2(void * helper) {
+    uint32_t encryptionz_key[4] = {3,6,9,4};
+    for (int i = 0; i < 10; i++) {
+        btree_delete(9 - i, helper);
+        sleep(0.1);
+    }
+}
 void test_interleave_insert_delete() {
     void * helper = init_store(3, 8);
     pthread_t thread_ids[7] = {};
@@ -362,6 +377,68 @@ void test_interleave_insert_delete() {
     close_store(helper);
 }
 
+void test_interleave_insert_delete2() {
+    void * helper = init_store(3, 8);
+    pthread_t thread_ids[7] = {};
+    for (int i = 0; i < 7; i++) {
+        if (i % 2 == 0) {
+            pthread_create(&thread_ids[i], NULL, insert_key2, helper);
+        } else {
+            pthread_create(&thread_ids[i], NULL, delete_key2, helper);
+        }
+        //printf("i: %d\n", i);
+    }
+    for (int i = 0; i < 7; i++) {
+        pthread_join(thread_ids[i], NULL);
+    }
+    close_store(helper);
+}
+
+
+void * insert_key_random(void * helper) {
+    uint32_t encryptionz_key[4] = {4,9,9,8};
+    for (int i = 4; i < 10; i++) {
+        btree_insert(i, "texts", 6, encryptionz_key, 11, helper);
+        sleep(0.1);
+    }
+    for (int i = 7; i < 18; i++) {
+        btree_insert(i, "text", 5, encryptionz_key, 11, helper);
+        sleep(0.1);
+    }
+    for (int i = 0; i < 3; i++) {
+        btree_insert(i, "text", 5, encryptionz_key, 11, helper);
+        sleep(0.1);  
+    }
+}
+
+void * retrieve_key(void * helper) {
+    struct info result = {};
+    btree_retrieve(4, &result, helper);
+    //assert_int_equal(result.size, 5);
+    //assert_int_equal(result.key[0], 4);
+
+}
+
+void test_interleave_insert_retrieve() {
+    void * helper = init_store(3, 8);
+    pthread_t thread_ids[2] = {};
+    pthread_create(&thread_ids[0], NULL, insert_key_random, helper);
+    sleep(0.3);
+    pthread_create(&thread_ids[1], NULL, retrieve_key, helper);
+    pthread_join(thread_ids[0], NULL);
+    pthread_join(thread_ids[1], NULL);
+    close_store(helper);
+}
+
+void test_encrypt_decrypt() {
+    uint32_t encryptionz_key[4] = {4,9,9,8};
+    uint32_t plain[2] = {0xaa998877, 0x66554433};
+    uint32_t cipher[2] = {};
+    encrypt_tea(plain, cipher, encryptionz_key);
+    decrypt_tea(cipher, plain, encryptionz_key);
+    assert_int_equal(plain[0], 0xaa998877);
+    assert_int_equal(plain[1], 0x66554433);
+}
 
 int main() {
     // Your own testing code here
@@ -375,8 +452,10 @@ int main() {
         cmocka_unit_test(test_retrieve),
         cmocka_unit_test(test_bulk_insert_delete),
         cmocka_unit_test(test_concurrent_insert),
-        cmocka_unit_test(test_interleave_insert_delete)
-        //cmocka_unit_test(test_test)
+        cmocka_unit_test(test_interleave_insert_delete),
+        cmocka_unit_test(test_interleave_insert_delete2),
+        cmocka_unit_test(test_interleave_insert_retrieve),
+        cmocka_unit_test(test_encrypt_decrypt)
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }
