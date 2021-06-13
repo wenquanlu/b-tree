@@ -90,8 +90,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count,
     sem_wait(w_sem); // lock the write lock
 
     // search for key in the tree first
-    int leaf_count = 0;
-    while (1) {
+    while (root -> children != NULL) {
         int count = 0;
         while (count < (root -> num_keys)) {
 
@@ -107,16 +106,10 @@ int btree_insert(uint32_t key, void * plaintext, size_t count,
             count ++;
         }
 
-        if (root -> children == NULL) {
-            leaf_count = count;
-            break;
-        }
-
         root = (root -> children) + count;
     }
 
-    // search in the leaf
-    /*
+    int leaf_count = 0;
     while (leaf_count < (root -> num_keys)) {
         uint32_t curr_key = ((root -> pairs) + leaf_count) -> key;
         if (curr_key > key) {
@@ -129,7 +122,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count,
         }
         leaf_count ++;
     }
-    */
+    
     // reallocate one more space for the inserted node, "root" now should be a leaf node
     root -> pairs = realloc(root -> pairs, sizeof(struct kv_pair) * (root -> num_keys + 1));
 
