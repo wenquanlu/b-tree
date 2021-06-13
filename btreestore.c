@@ -826,7 +826,7 @@ int btree_delete(uint32_t key, void * helper) {
     int found = 0;
     struct tree_node * leaf_node;
     int leaf_key_index;
-    while (1) {
+    while (root -> children != NULL) {
         int count = 0;
         while (count < (root -> num_keys)) {
 
@@ -849,12 +849,10 @@ int btree_delete(uint32_t key, void * helper) {
             }
             count ++;
         }
-        if (root -> children == NULL) {
-            break;
-        }
+
         root = (root -> children) + count;
     }
-    /*
+    
     int leaf_count = 0;
     if (!found) {
         while (leaf_count < (root -> num_keys)) {
@@ -872,7 +870,7 @@ int btree_delete(uint32_t key, void * helper) {
             }
             leaf_count ++;
         }
-    }*/
+    }
     if (found) {
 
         struct tree_node * parent = leaf_node -> parent;
