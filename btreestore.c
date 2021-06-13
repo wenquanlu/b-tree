@@ -376,7 +376,7 @@ int btree_retrieve(uint32_t key, struct info * found, void * helper) {
     }
     sem_post(r_sem); // release the read lock
 
-    while (root -> children != NULL) {
+    while (1) {
             int count = 0;
             while (count < (root -> num_keys)) {
 
@@ -401,9 +401,12 @@ int btree_retrieve(uint32_t key, struct info * found, void * helper) {
                 }
                 count ++;
             }
-
+            if (root -> children == NULL) {
+                break;
+            }
             root = (root -> children) + count;
         }
+    /*
     int leaf_count = 0;
     while (leaf_count < (root -> num_keys)) {
         uint32_t curr_key = ((root -> pairs) + leaf_count) -> key;
@@ -426,7 +429,7 @@ int btree_retrieve(uint32_t key, struct info * found, void * helper) {
             return 0;
         }
         leaf_count ++;
-    }
+    }*/
     sem_wait(r_sem);
     (*reading) --;
     if (*reading == 0) {
@@ -452,7 +455,7 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
         sem_wait(w_sem);
     }
     sem_post(r_sem);
-    while (root -> children != NULL) {
+    while (1) {
             int count = 0;
             while (count < (root -> num_keys)) {
 
@@ -484,9 +487,12 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
                 }
                 count ++;
             }
-
+            if (root -> children == NULL) {
+                break;
+            }
             root = (root -> children) + count;
         }
+    /*
     int leaf_count = 0;
     while (leaf_count < (root -> num_keys)) {
         uint32_t curr_key = ((root -> pairs) + leaf_count) -> key;
@@ -516,7 +522,7 @@ int btree_decrypt(uint32_t key, void * output, void * helper) {
                 return 0;
         }
         leaf_count ++;
-    }
+    }*/
     sem_wait(r_sem);
     (*reading) --;
     if (*reading == 0) {
