@@ -154,7 +154,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count,
         num_blocks ++;
     }
 
-    // initialise with 0
+    // initialise with 0 
     new_kv -> data = calloc(1, num_blocks * 8);
     memcpy(new_kv -> data, plaintext, count);
     encrypt_tea_ctr(new_kv -> data, encryption_key, nonce, new_kv -> data, num_blocks);
