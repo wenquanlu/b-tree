@@ -1155,7 +1155,7 @@ int pre_order(struct tree_node * root, int count, struct node ** ls) {
         count = pre_order((root -> children) + i, count, ls);
     }
     return count;
-} 
+}
 
 /*
  * conduct a pre-order traversal to count the number of nodes
