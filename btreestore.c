@@ -122,7 +122,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count,
         }
         leaf_count ++;
     }
-
+    
     // reallocate one more space for the inserted node, "root" now should be a leaf node
     root -> pairs = realloc(root -> pairs, sizeof(struct kv_pair) * (root -> num_keys + 1));
 
@@ -376,7 +376,7 @@ int btree_retrieve(uint32_t key, struct info * found, void * helper) {
     }
     sem_post(r_sem); // release the read lock
 
-    while (root != NULL) {
+    while (root -> children != NULL) {
             int count = 0;
             while (count < (root -> num_keys)) {
 
@@ -403,8 +403,30 @@ int btree_retrieve(uint32_t key, struct info * found, void * helper) {
             }
 
             root = (root -> children) + count;
-    }
+        }
+    int leaf_count = 0;
+    while (leaf_count < (root -> num_keys)) {
+        uint32_t curr_key = ((root -> pairs) + leaf_count) -> key;
+        if (curr_key > key) {
+            break;
+        }
+        if (curr_key == key) {
 
+            found -> data = ((root -> pairs) + leaf_count) -> data;
+            memcpy(found -> key, ((root -> pairs) + leaf_count) -> encryption_key, 
+            4 * sizeof(uint32_t));
+            found -> nonce = ((root -> pairs) + leaf_count) -> nonce;
+            found -> size = ((root -> pairs) + leaf_count) -> size;
+            sem_wait(r_sem);
+            (*reading) --;
+            if (*reading == 0) {
+                sem_post(w_sem);
+            }
+            sem_post(r_sem);
+            return 0;
+        }
+        leaf_count ++;
+    }
     sem_wait(r_sem);
     (*reading) --;
     if (*reading == 0) {
