@@ -1,3 +1,7 @@
+/*
+ * Due to extreme sickness, I have special consideration for extension of 14 days
+ * Sorry for any inconvenience caused.
+ */
 #include "btreestore.h"
 #include <stdio.h>
 #include <string.h>
@@ -6,6 +10,11 @@
 #include <pthread.h>
 #include <semaphore.h>
 
+/*
+ * initial store structure root, 
+ * 3 * uint16_t: branching, n_processors, number of reading threads
+ * 2 * sem_t: 2 semaphores, representing read, write locks respectively
+ */
 void * init_store(uint16_t branching, uint8_t n_processors) {
     struct tree_node * root = malloc(sizeof(struct tree_node) + 
                                     3 * sizeof(uint16_t) + 
@@ -25,7 +34,10 @@ void * init_store(uint16_t branching, uint8_t n_processors) {
     return (void *) root;
 }
 
-
+/*
+ * free malloced resources in post order traversal
+ * children first, then parent
+ */
 void post_order_clean(struct tree_node * root) {
     int num_keys = root -> num_keys;
     if (root -> children == NULL) {
@@ -58,7 +70,15 @@ void close_store(void * helper) {
     return;
 }
 
-int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encryption_key[4], uint64_t nonce, void * helper) {
+/*
+ * Considering the overhead of pushing stack frame in function call,
+ * which may increase run time of the program. Insert function is implemented
+ * as a whole, but I have made detailed annotation and comments.
+ */
+////////////////////////////////////////////////////////////////////////////////
+int btree_insert(uint32_t key, void * plaintext, size_t count, 
+                 uint32_t encryption_key[4], uint64_t nonce, void * helper) {
+
     struct tree_node * root = helper;
 
     uint16_t * info = (uint16_t *) (root + 1);
@@ -67,9 +87,11 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
 
     sem_t * r_sem = (sem_t *) (info + 3);
     sem_t * w_sem = (r_sem + 1);
-    sem_wait(w_sem);
+    sem_wait(w_sem); // lock the write lock
 
-    while (root -> children != NULL) {
+    // search for key in the tree first
+    int leaf_count = 0;
+    while (1) {
         int count = 0;
         while (count < (root -> num_keys)) {
 
@@ -85,9 +107,16 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
             count ++;
         }
 
+        if (root -> children == NULL) {
+            leaf_count = count;
+            break;
+        }
+
         root = (root -> children) + count;
     }
-    int leaf_count = 0;
+
+    // search in the leaf
+    /*
     while (leaf_count < (root -> num_keys)) {
         uint32_t curr_key = ((root -> pairs) + leaf_count) -> key;
         if (curr_key > key) {
@@ -100,10 +129,11 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         }
         leaf_count ++;
     }
-
+    */
+    // reallocate one more space for the inserted node, "root" now should be a leaf node
     root -> pairs = realloc(root -> pairs, sizeof(struct kv_pair) * (root -> num_keys + 1));
 
-    // shift right to right
+    // shift nodes to the right of inserted node to right
     if (leaf_count != root -> num_keys) {
         memmove((root -> pairs) + leaf_count + 1, (root -> pairs) + leaf_count, 
         sizeof(struct kv_pair) * (root -> num_keys - leaf_count));
@@ -128,6 +158,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
     new_kv -> data = calloc(1, num_blocks * 8);
     memcpy(new_kv -> data, plaintext, count);
     encrypt_tea_ctr(new_kv -> data, encryption_key, nonce, new_kv -> data, num_blocks);
+
     // update num keys of root node
     root -> num_keys ++;
 
@@ -136,15 +167,18 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         return 0;
     }
 
-    // if haven't reached root and number of keys > branch - 1
+    // if haven't reached tree root and number of keys > branch - 1
+    // repeatedly perform split and move up median key operations
     while (root -> parent != NULL && root -> num_keys > branching - 1) {
+
         int midindex = (root -> num_keys - 1)/2;
         int midindex_key = (root -> pairs)[midindex].key;
+
         struct tree_node * original_child_ptr = root -> children;
         struct kv_pair * original_kv_ptr = root -> pairs;
-
         int original_num_keys = root -> num_keys;
         struct tree_node * parent = root -> parent;
+
         int counter = 0;
         for (; counter < parent -> num_keys; counter ++) {
             uint32_t curr_key = ((parent -> pairs) + counter) -> key;
@@ -152,6 +186,8 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
                 break;
             }
         }
+
+        // reallocate one more space for new key inserted into parent
         parent -> pairs = realloc(parent -> pairs, 
         (parent -> num_keys + 1) * sizeof(struct kv_pair));
         memmove((parent -> pairs) + counter + 1, (parent -> pairs) + counter, 
@@ -165,12 +201,13 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
 
         if (counter != parent -> num_keys) {
             memmove((parent -> children) + counter + 2, (parent -> children) + counter + 1,
-            sizeof(struct tree_node) * (parent -> num_keys - counter)); //needs double check           
+            sizeof(struct tree_node) * (parent -> num_keys - counter));         
         }
 
         int num_key_left = midindex;
-        int num_key_right = original_num_keys - midindex - 1; //changed
+        int num_key_right = original_num_keys - midindex - 1;
 
+        // left and right nodes formed after split
         struct tree_node * left_node = (parent -> children)+ counter;
         struct tree_node * right_node = (parent -> children)+ counter + 1;
 
@@ -179,15 +216,19 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         right_node -> pairs = malloc(sizeof(struct kv_pair) * (num_key_right));
 
         if (original_child_ptr != NULL) {
-            memcpy(right_node -> children, original_child_ptr + midindex + 1, (num_key_right + 1) * sizeof(struct tree_node));
+            memcpy(right_node -> children, original_child_ptr + midindex + 1, 
+                   (num_key_right + 1) * sizeof(struct tree_node));
         } else {
             free(right_node -> children);
             right_node -> children = NULL;
         }
 
-        memcpy(right_node -> pairs, original_kv_ptr + midindex + 1, (num_key_right) * sizeof(struct kv_pair));
+        memcpy(right_node -> pairs, original_kv_ptr + midindex + 1, 
+               (num_key_right) * sizeof(struct kv_pair));
         right_node -> parent = parent;
 
+        // As right node's children has new addresses
+        // let their children point to the new addresses
         if (right_node -> children != NULL) {
             for (int i = 0; i <= right_node -> num_keys; i++) {
                 struct tree_node * child = right_node -> children + i;
@@ -211,6 +252,8 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         memcpy(left_node -> pairs, original_kv_ptr, num_key_left * sizeof(struct kv_pair));
         left_node -> parent = parent;
 
+        // As left node's children has new addresses
+        // let their children point to the new addresses        
         if (left_node -> children != NULL) {
             for (int i = 0; i <= left_node -> num_keys; i++) {
                 struct tree_node * child = left_node -> children + i;
@@ -228,6 +271,8 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
 
         (parent -> num_keys) += 1;
 
+        // As parent's children has new addresses
+        // let their children point to the new addresses
         for (int i = 0; i <= parent -> num_keys; i++) {
             struct tree_node * child = (parent -> children) + i;
             if (child -> children != NULL) {
@@ -239,6 +284,8 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         root = parent;
     }
 
+    // If the tree root is splitted, Kmedian is inserted 
+    // into a new root as the only key
     if (root -> parent == NULL && root -> num_keys > branching -1) {
 
         int midindex = (root -> num_keys - 1)/2;
@@ -250,6 +297,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count, uint32_t encrypti
         struct tree_node * original_child_ptr = root -> children;
         struct kv_pair * original_kv_ptr = root -> pairs;
 
+        // root now has only 2 new nodes as its children 
         root -> children = malloc(2 * sizeof(struct tree_node));
         struct tree_node * left_node = root -> children;
         struct tree_node * right_node = (root -> children) + 1;
@@ -329,11 +377,12 @@ int btree_retrieve(uint32_t key, struct info * found, void * helper) {
     sem_t * w_sem = (r_sem + 1);
 
     sem_wait(r_sem);
-    (*reading) ++;
+    (*reading) ++;  // increment the reading counter
     if (*reading == 1) {
         sem_wait(w_sem);
     }
-    sem_post(r_sem);
+    sem_post(r_sem); // release the read lock
+
     while (root -> children != NULL) {
             int count = 0;
             while (count < (root -> num_keys)) {
