@@ -16,7 +16,7 @@
  * 2 * sem_t: 2 semaphores, representing read, write locks respectively
  */
 void * init_store(uint16_t branching, uint8_t n_processors) {
-    struct tree_node * root = malloc(sizeof(struct tree_node) + 
+    struct tree_node * root = malloc(sizeof(struct tree_node) +
                                     3 * sizeof(uint16_t) + 
                                     2 * sizeof(sem_t));
     root -> num_keys = 0;
