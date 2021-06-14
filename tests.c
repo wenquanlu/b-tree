@@ -440,6 +440,68 @@ void test_encrypt_decrypt() {
     assert_int_equal(plain[1], 0x66554433);
 }
 
+void test_large_correctness() {
+    void * helper = init_store(7, 4);
+    uint32_t encryptionz_key[4] = {4,9,9,8};
+
+    btree_insert(27, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(33, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(21, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(90, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(11, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(88, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(303, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(78, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(66, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(133, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(571, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(3, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(8, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(86, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(69, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(101, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(202, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(23, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(29, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(43, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(81, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(153, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(365, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(593, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(321, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(89, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(77, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(45, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(238, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(14, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(1, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(57, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(72, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(98, "abcd", 5, encryptionz_key, 12, helper);
+    btree_insert(213, "abcd", 5, encryptionz_key, 12, helper);
+
+    struct node * list = NULL;
+    int num = btree_export(helper, &list);
+    assert_int_equal(num, 11);
+    assert_int_equal(*(list[0].keys), 78);
+    assert_int_equal(*(list[1].keys), 21);
+    assert_int_equal(*(list[2].keys), 1);
+    assert_int_equal(*(list[3].keys), 23);
+    assert_int_equal(*(list[4].keys), 43);
+    assert_int_equal(*(list[5].keys), 69);
+    assert_int_equal(*(list[6].keys), 90);
+    assert_int_equal(*(list[7].keys), 81);
+    assert_int_equal(*(list[8].keys), 98);
+    assert_int_equal(*(list[9].keys), 213);
+    assert_int_equal(*(list[10].keys), 365);
+    for (int i = 0; i < num; i++) {
+        free(list[i].keys);
+    }
+    free(list);
+    close_store(helper);
+}
+
+
 int main() {
     // Your own testing code here
     const struct CMUnitTest tests[] = {
@@ -455,7 +517,8 @@ int main() {
         cmocka_unit_test(test_interleave_insert_delete),
         cmocka_unit_test(test_interleave_insert_delete2),
         cmocka_unit_test(test_interleave_insert_retrieve),
-        cmocka_unit_test(test_encrypt_decrypt)
+        cmocka_unit_test(test_encrypt_decrypt),
+        cmocka_unit_test(test_large_correctness)
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }
