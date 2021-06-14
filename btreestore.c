@@ -791,7 +791,7 @@ void move_c_from_left_to_right(struct tree_node * left_node, struct tree_node * 
     struct tree_node * original_left_children = left_node -> children;
     struct tree_node tmp = {};
 
-    memcpy(&tmp, left_node -> children + (left_node -> num_keys + 1), 
+    memcpy(&tmp, left_node -> children + (left_node -> num_keys + 1),
            sizeof(struct tree_node));
 
     left_node -> children 
