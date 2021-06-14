@@ -683,7 +683,7 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
 
     if (right_node -> children != NULL) {
 
-        left_node -> children = realloc(left_node -> children, 
+        left_node -> children = realloc(left_node -> children,
         ((left_node -> num_keys + 1) + 
         (right_node_num_keys + 1)) * sizeof(struct tree_node));
 
