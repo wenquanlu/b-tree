@@ -286,10 +286,9 @@ int btree_insert(uint32_t key, void * plaintext, size_t count,
 
         int midindex = (root -> num_keys - 1)/2;
 
-        int midindex_key = (root -> pairs)[midindex].key;
         int num_key_left = midindex;
         int num_key_right = root -> num_keys - midindex - 1;
-        int original_num_keys = root ->num_keys;
+
         struct tree_node * original_child_ptr = root -> children;
         struct kv_pair * original_kv_ptr = root -> pairs;
 
@@ -664,8 +663,6 @@ void merge_from_left(struct tree_node * left_node, struct tree_node * right_node
 void merge_from_right(struct tree_node * left_node, struct tree_node * right_node,
                     struct tree_node * parent, int inter_key_idx) {
     
-    struct kv_pair * original_left_child_keys = left_node -> pairs;
-    struct tree_node * original_left_children = left_node -> children;
     struct kv_pair * original_right_child_keys = right_node -> pairs;
     struct tree_node * original_right_children = right_node -> children;
     struct kv_pair * original_parent_keys = parent -> pairs;
@@ -748,7 +745,6 @@ void merge_from_right(struct tree_node * left_node, struct tree_node * right_nod
 void move_c_from_right_to_left(struct tree_node * left_node, struct tree_node * right_node) {
 
     struct tree_node * original_right_children = right_node -> children;
-    struct tree_node * original_left_children = left_node -> children;
 
     left_node -> children 
     = realloc(left_node -> children, (left_node -> num_keys + 1) * sizeof(struct tree_node));
@@ -788,7 +784,6 @@ void move_c_from_right_to_left(struct tree_node * left_node, struct tree_node * 
 void move_c_from_left_to_right(struct tree_node * left_node, struct tree_node * right_node) {
 
     struct tree_node * original_right_children = right_node -> children;
-    struct tree_node * original_left_children = left_node -> children;
     struct tree_node tmp = {};
 
     memcpy(&tmp, left_node -> children + (left_node -> num_keys + 1),
