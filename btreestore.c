@@ -128,7 +128,7 @@ int btree_insert(uint32_t key, void * plaintext, size_t count,
 
     // shift nodes to the right of inserted node to right
     if (leaf_count != root -> num_keys) {
-        memmove((root -> pairs) + leaf_count + 1, (root -> pairs) + leaf_count, 
+        memmove((root -> pairs) + leaf_count + 1, (root -> pairs) + leaf_count,
         sizeof(struct kv_pair) * (root -> num_keys - leaf_count));
     }
 
