@@ -1222,22 +1222,6 @@ void encrypt_tea(uint32_t plain[2], uint32_t cipher[2], uint32_t key[4]) {
                                     (cipher[0] + sum) ^ 
                                     ((cipher[0] >> 5) + key[3])));
         i++;
-        sum = (sum + 0x9E3779B9);
-        cipher[0] = (cipher[0] + (((cipher[1] << 4) + key[0]) ^ 
-                                    (cipher[1] + sum) ^ 
-                                    ((cipher[1] >> 5) + key[1]))); 
-        cipher[1] = (cipher[1] + (((cipher[0] << 4) + key[2]) ^ 
-                                    (cipher[0] + sum) ^ 
-                                    ((cipher[0] >> 5) + key[3])));
-        i++;
-        sum = (sum + 0x9E3779B9);
-        cipher[0] = (cipher[0] + (((cipher[1] << 4) + key[0]) ^ 
-                                    (cipher[1] + sum) ^ 
-                                    ((cipher[1] >> 5) + key[1]))); 
-        cipher[1] = (cipher[1] + (((cipher[0] << 4) + key[2]) ^ 
-                                    (cipher[0] + sum) ^ 
-                                    ((cipher[0] >> 5) + key[3])));
-        i++;
     }
     return;
 }
