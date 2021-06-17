@@ -1199,6 +1199,7 @@ uint64_t btree_export(void * helper, struct node ** list) {
     return result;
 }
 
+// loop unrolling to reduce run time
 void encrypt_tea(uint32_t plain[2], uint32_t cipher[2], uint32_t key[4]) {
     // plain contains the 64 bit plaintext
     uint32_t sum = 0;
@@ -1226,7 +1227,6 @@ void encrypt_tea(uint32_t plain[2], uint32_t cipher[2], uint32_t key[4]) {
     return;
 }
 
-// loop unrolling to reduce run time
 void decrypt_tea(uint32_t cipher[2], uint32_t plain[2], uint32_t key[4]) {
     uint32_t sum = 0xDDE6E400;
     uint32_t delta = 0x9E3779B9;
