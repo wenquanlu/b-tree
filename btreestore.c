@@ -137,10 +137,12 @@ int btree_insert(uint32_t key, void * plaintext, size_t count,
     new_kv -> key = key;
     new_kv -> size = count;
 
-    // encrypts the data
-    for (int i = 0; i < 4; i++) {
-        (new_kv -> encryption_key)[i] = encryption_key[i];
-    }
+    // encrypts the data and loop unrolling
+    (new_kv -> encryption_key)[0] = encryption_key[0];
+    (new_kv -> encryption_key)[1] = encryption_key[1];
+    (new_kv -> encryption_key)[2] = encryption_key[2];
+    (new_kv -> encryption_key)[3] = encryption_key[3];
+
     new_kv -> nonce = nonce;
     int num_blocks = count / 8;
     if (count % 8 != 0) {
@@ -1226,6 +1228,7 @@ void encrypt_tea(uint32_t plain[2], uint32_t cipher[2], uint32_t key[4]) {
     return;
 }
 
+// loop unrolling to reduce run time
 void decrypt_tea(uint32_t cipher[2], uint32_t plain[2], uint32_t key[4]) {
     uint32_t sum = 0xDDE6E400;
     uint32_t delta = 0x9E3779B9;
