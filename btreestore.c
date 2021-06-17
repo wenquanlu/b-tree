@@ -1205,7 +1205,7 @@ void encrypt_tea(uint32_t plain[2], uint32_t cipher[2], uint32_t key[4]) {
     uint32_t sum = 0;
     cipher[0] = plain[0];
     cipher[1] = plain[1];
-    // loop 1024 times:
+
     for (int i = 0; i < 1024; ) {
         sum = (sum + 0x9E3779B9);
         cipher[0] = (cipher[0] + (((cipher[1] << 4) + key[0]) ^ 
